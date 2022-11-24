@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  app_monitoring:
+    extra_hosts:
+      host.docker.internal: host-gateway
+    container_name: app-monitoring
+    environment:
+      - PG_USERNAME=${PG_USERNAME}
+      - PG_PASSWORD=${PG_PASSWORD}
+      - PG_HOST=${PG_HOST}
+      - PG_DATABASE=${PG_DATABASE}
+      - PG_PORT=${PG_PORT:-5432}
+      - MONITORING_USERNAME=${MONITORING_USERNAME}
+      - MONITORING_PASSWORD=${MONITORING_PASSWORD}
+    build: 
+      context: .
