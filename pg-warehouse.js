@@ -13,7 +13,7 @@ class PostgresWarehouse {
       throw Error('Attempted to upload, but there is no connection');
     }
 
-    const query = `SELECT id, url, access_level, enabled FROM monitoring_urls;`;
+    const query = `SELECT id, url, access_level, klipfolio_client_id, enabled FROM monitoring_urls;`;
     const result = await this.client.query(query);
     if (result.rowCount === 0) {
       throw Error(`No urls selected`);
@@ -48,6 +48,7 @@ class PostgresWarehouse {
     await queryInsertDoc(this.client, result.urlId, 'analysis', result.analysis);
     await queryInsertDoc(this.client, result.urlId, 'settings', result.settings);
     await queryInsertDoc(this.client, result.urlId, 'monitoring', result.monitoring);
+    await queryInsertDoc(this.client, result.urlId, 'klipfolio_datasource', result.klipDatasources);
 
     for (const log of result.logs || []) {
       await queryInsertLog(this.client, result.urlId, log);

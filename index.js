@@ -19,13 +19,21 @@ const dbParams = {
   port: process.env.PG_PORT,
 };
 
+const klipfolioParams = {
+  apiKey: process.env.KLIP_API_KEY,
+};
+
 const missingEnvs = Object.keys(dbParams).filter(key => !dbParams[key]);
 const missingMonitorParams = Object.keys(monitorParams).filter(key => !monitorParams[key]);
+const missingKlipfolioParams = Object.keys(klipfolioParams).filter(key => !klipfolioParams[key]);
 if (missingEnvs.length > 0) {
-  throw Error(`Environment variables are undefined: ${missingEnvs.join(',')}`);
+  throw Error(`DB Environment variables are undefined: ${missingEnvs.join(',')}`);
 }
 if (missingMonitorParams.length > 0) {
-  throw Error(`Environment variables are undefined: ${missingMonitorParams.join(',')}`);
+  throw Error(`Monitoring Environment variables are undefined: ${missingMonitorParams.join(',')}`);
+}
+if (missingKlipfolioParams.length > 0) {
+  throw Error(`Klipfolio Environment variables are undefined: ${missingKlipfolioParams.join(',')}`);
 }
 
 const postgres = new PostgresWarehouse();
@@ -42,12 +50,19 @@ const postgres = new PostgresWarehouse();
         urlId: entry.id,
         url: entry.url,
         access: entry.access_level,
+        klipfolioApiKey: klipfolioParams.apiKey,
+        klipfolioClientId: entry.klipfolio_client_id,
         username: monitorParams.user,
         password: monitorParams.password,
       }));
 
-    const promisesToScrape = scrapeableOptions.map(scrapeInstance);
-    const scrapedData = await Promise.all(promisesToScrape);
+    // should not scrape in parallel due to klipfolio rate limits
+    const scrapedData = [];
+    for (const scrapeable of scrapeableOptions) {
+      const result = await scrapeInstance(scrapeable);
+      scrapedData.push(result);
+    }
+    
     for (const result of scrapedData) {
       await postgres.upload(result);
     }

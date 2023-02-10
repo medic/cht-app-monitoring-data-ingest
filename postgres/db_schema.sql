@@ -2,7 +2,8 @@ CREATE TABLE public.monitoring_urls (
 	id SERIAL PRIMARY KEY,
 	url VARCHAR NOT NULL,
   partner_name text,
-	enabled BOOLEAN NOT NULL DEFAULT true,
+  klipfolio_client_id text,
+  enabled BOOLEAN NOT NULL DEFAULT true,
   access_level smallint NOT NULL DEFAULT 1,
   CONSTRAINT fk_partner_name
     FOREIGN KEY(partner_name)
