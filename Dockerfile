@@ -1,5 +1,5 @@
 FROM node:16
 WORKDIR /usr/app
 COPY . .
-RUN npm install
+RUN npm ci
 CMD ["node", "index.js"]

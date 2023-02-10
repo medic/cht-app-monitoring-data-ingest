@@ -3,6 +3,7 @@ const btoa = require('btoa');
 const fetch = require('node-fetch');
 
 const analyse = require('./analyse');
+const fetchKlipDatasourceStatus = require('./fetch-klip-datasource-status');
 
 const scrape = async instance => {
   const { url } = instance;
@@ -19,8 +20,12 @@ const scrape = async instance => {
     // public API - not permissions needed
     const monitoring = await fetchWithoutAuth(url, '/api/v1/monitoring');
     console.log(`Monitor for ${url}: ${!!monitoring}`);
+
+    let settings, klipDatasources, forms, users, analysis, logs;
+    if (instance.klipfolioClientId) {
+      klipDatasources = await fetchKlipDatasourceStatus(instance.klipfolioClientId, instance.klipfolioApiKey);
+    }
     
-    let settings, forms, users, analysis, logs;
     // user account with online role
     // can't use API due to https://github.com/medic/cht-core/issues/7592
     if (instance.access > 2) {
@@ -46,6 +51,7 @@ const scrape = async instance => {
       urlId: instance.urlId,
       status: 'ok',
       settings,
+      klipDatasources,
       monitoring,
       analysis,
       logs,
