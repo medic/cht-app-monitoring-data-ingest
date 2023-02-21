@@ -77,7 +77,7 @@ SELECT
   SUM(count) AS count
 FROM telemetry_metrics
 WHERE period_start >= now() - ''30 days''::interval
-    and metric like ''replication:medic:%:failure:%''
+    and metric like ''replication:medic:%:failure:reason:%''
 GROUP BY 1, 2
 ;
         ',
