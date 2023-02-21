@@ -74,9 +74,10 @@ telemetry_metrics AS (
 SELECT
   current_database() AS partner,
   period_start,
-  SUM(count) filter(where metric LIKE ''%:medic:%:success'') AS replication_success_count,
-  SUM(count) filter(where metric LIKE ''%:medic:%:failure'') AS replication_failure_count,
-  SUM(count) filter(where metric LIKE ''%:medic:%:denied'') AS replication_denied_count
+  COALESCE(SUM(count) filter(where metric LIKE ''%:medic:%:success''), 0) AS replication_success_count,
+  COALESCE(SUM(count) filter(where metric LIKE ''%:medic:%:failure''), 0) AS replication_failure_count,
+  COALESCE(SUM(count) filter(where metric LIKE ''%:medic:%:denied''), 0) AS replication_denied_count,
+  COALESCE(SUM(count) filter(where metric LIKE ''%:failure:reason:error''), 0) AS replication_error_count
 FROM telemetry_metrics
 WHERE
   period_start >= now() - ''30 days''::interval

@@ -2,13 +2,12 @@ CREATE MATERIALIZED VIEW public.app_monitoring_replication_docs
 TABLESPACE pg_default
 AS
   SELECT
-    fn.partner AS partner_name,
-    ic.partner_short_name,
-    fn.metric,
-    fn.docs_count
-  FROM get_replication_doc_count() AS fn(partner, metric, docs_count)
-  INNER JOIN impactconfig AS ic ON fn.partner = ic.partner_name
-
+    created,
+    partner_name,
+    COALESCE((doc #>> '{couchdb,medic,doc_count}')::int, 0) AS doc_count
+  FROM monitoring_docs AS docs
+  INNER JOIN monitoring_urls AS urls ON (docs.url_id=urls.id)
+  WHERE doctype = 'monitoring'
 WITH DATA;
 
 GRANT SELECT ON app_monitoring_replication_docs to superset;
