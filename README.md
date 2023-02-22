@@ -122,6 +122,7 @@ monitoring_docs | monitoring | Result from [Monitoring API v1](https://docs.comm
 monitoring_docs | analysis | See [Analysis](#analysis)
 monitoring_docs | error | An error occurred while scraping the instance. Document contains error
 monitoring_logs | - | [Purging logs and errors](https://docs.communityhealthtoolkit.org/apps/guides/performance/purging/#purged-documents-server-side)
+monitoring_couchpg | - | The status of couch2pg's sync for each couch database 
 
 ### Access Level 1
 
