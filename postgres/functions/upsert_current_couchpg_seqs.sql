@@ -1,7 +1,7 @@
 -- for each partner database, pull the current seq number that couch2pg has synced to and upsert it into the monitoring_couchpg table
-DROP FUNCTION IF EXISTS upsert_daily_couchpg_seqs();
+DROP FUNCTION IF EXISTS upsert_current_couchpg_seqs();
 
-CREATE OR REPLACE FUNCTION upsert_daily_couchpg_seqs() RETURNS void AS $$
+CREATE OR REPLACE FUNCTION upsert_current_couchpg_seqs() RETURNS void AS $$
 DECLARE partners cursor IS (
         SELECT DISTINCT ON (partner_name)
             partner_name AS name,
