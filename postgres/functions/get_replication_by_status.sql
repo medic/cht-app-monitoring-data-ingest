@@ -80,7 +80,7 @@ SELECT
   COALESCE(SUM(count) filter(where metric LIKE ''%:failure:reason:error''), 0) AS replication_error_count
 FROM telemetry_metrics
 WHERE
-  period_start >= now() - ''30 days''::interval
+  period_start >= now() - ''60 days''::interval
   and metric like ''replication:%''
 GROUP BY 1, 2
 ;

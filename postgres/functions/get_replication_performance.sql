@@ -1,5 +1,5 @@
-CREATE OR REPLACE FUNCTION public.get_replication_failure_reasons()
-  RETURNS TABLE(partner text, metric text, count integer)
+CREATE OR REPLACE FUNCTION public.get_replication_performance()
+  RETURNS TABLE(partner text, metric text, period_start date, min numeric, sum numeric, mean float, max numeric, first_quartile float, third_quartile float)
   LANGUAGE plpgsql
 AS $function$
 DECLARE partners CURSOR IS (
@@ -17,7 +17,6 @@ BEGIN
   FROM configuration 
   WHERE KEY = 'dblink' 
   INTO creds;
-
   FOR partner IN partners LOOP RETURN query
   SELECT *
   FROM dblink(
@@ -56,7 +55,6 @@ WITH telemetry_docs_with_metric_blob AS (
   WHERE
     doc ->> ''type'' = ''telemetry''
 ),
-
 telemetry_metrics AS (
   SELECT 
     id,
@@ -70,19 +68,25 @@ telemetry_metrics AS (
   FROM telemetry_docs_with_metric_blob
   CROSS JOIN LATERAL jsonb_to_record(metric_values) AS (min decimal, max decimal, sum decimal, count bigint, sumsqr decimal)
 )
-
-SELECT
+select
   current_database() AS partner,
   metric,
-  SUM(count) AS count
-FROM telemetry_metrics
-WHERE period_start >= now() - ''60 days''::interval
-    and metric like ''replication:medic:%:failure:reason:%''
-GROUP BY 1, 2
+  period_start,
+  min(min),
+  sum(count),
+  sum(sum) / sum(count) as mean,
+  max(max),
+  percentile_disc(0.25) within group (order by COALESCE(sum, 0) / count) as first_quartile,
+  percentile_disc(0.75) within group (order by COALESCE(sum, 0) / count) as third_quartile
+from telemetry_metrics
+where 
+  metric LIKE ''replication:medic:%:success''
+  and period_start > now() - ''45 days''::interval
+group by 1, 2, 3
 ;
         ',
         FALSE
-    ) completions(partner text, metric text, count integer);
+    ) completions(partner text, metric text, period_start date, min numeric, sum numeric, mean float, max numeric, first_quartile float, third_quartile float);
 END LOOP;
 END;
 $function$;
