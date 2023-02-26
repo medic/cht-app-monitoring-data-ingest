@@ -22,3 +22,20 @@ CREATE TABLE public.monitoring_docs (
       REFERENCES monitoring_urls(id)
 );
 ALTER TABLE public.monitoring_docs OWNER TO full_access;
+
+CREATE TABLE public.monitoring_couchpg (
+  partner_name text,
+  created DATE NOT NULL,
+  seq BIGINT NOT NULL,
+  source text NOT NULL,
+  
+  CONSTRAINT fk_partner_name
+    FOREIGN KEY(partner_name)
+      REFERENCES impactconfig(partner_name)
+);
+ALTER TABLE public.monitoring_couchpg OWNER TO full_access;
+
+-- This constraint is used for upsert
+-- `ON CONFLICT ON CONSTRAINT monitoring_couchpg_idx_constraint DO NOTHING`
+CREATE UNIQUE INDEX monitoring_couchpg_idx ON monitoring_couchpg(partner_name, created, source);
+ALTER TABLE monitoring_couchpg ADD CONSTRAINT monitoring_couchpg_idx_constraint UNIQUE USING INDEX monitoring_couchpg_idx;

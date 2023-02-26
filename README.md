@@ -121,6 +121,7 @@ monitoring_docs | settings | [app_settings.json](https://docs.communityhealthtoo
 monitoring_docs | monitoring | Result from [Monitoring API v1](https://docs.communityhealthtoolkit.org/apps/reference/api/#get-apiv1monitoring)
 monitoring_docs | analysis | See [Analysis](#analysis)
 monitoring_docs | error | An error occurred while scraping the instance. Document contains error
+monitoring_couchpg | - | The status of couch2pg's sync for each couch database 
 
 ### Access Level 1
 
