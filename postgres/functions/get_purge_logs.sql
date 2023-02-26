@@ -30,7 +30,9 @@ SELECT
   (doc ->> ''skipped_contacts'')::text as skipped_contacts,
   doc ->> ''error'' as error
 FROM couchdb
-WHERE doc #>> ''{_id}'' like ''purgelog:%''
+WHERE
+  doc #>> ''{_id}'' like ''purgelog:%''
+  AND (doc ->> ''date'')::timestamptz > now() - ''120 days''::interval
 ;
             ',
             FALSE
