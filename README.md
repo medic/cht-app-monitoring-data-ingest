@@ -42,7 +42,7 @@ After you have created the tables above, the list of CHT instances to scrape is 
 
 * To add a new instance, insert a row into the table
 * To disable an instance, set `enabled` to `false`
-* To scrape deep metrics for an instance, set `access-level` to `1`, `2`, `3` or `4`
+* To scrape deep metrics for an instance, set `access-level` to `1`, `2`, or `3`
 
 ### Credentials
 
@@ -113,7 +113,7 @@ After you have set up your `.env` per above, run `docker-compose up`.  All relat
 
 ## Output
 
-As the `access-level` of the user increases from `1` up to `4`, richer metrics are available. The results of the scraped data are stored in Postgres tables:
+As the `access-level` of the user increases from `1` up to `3`, richer metrics are available. The results of the scraped data are stored in Postgres tables:
 
 table | doctype | description
 -- | -- | --
@@ -121,7 +121,6 @@ monitoring_docs | settings | [app_settings.json](https://docs.communityhealthtoo
 monitoring_docs | monitoring | Result from [Monitoring API v1](https://docs.communityhealthtoolkit.org/apps/reference/api/#get-apiv1monitoring)
 monitoring_docs | analysis | See [Analysis](#analysis)
 monitoring_docs | error | An error occurred while scraping the instance. Document contains error
-monitoring_logs | - | [Purging logs and errors](https://docs.communityhealthtoolkit.org/apps/guides/performance/purging/#purged-documents-server-side)
 
 ### Access Level 1
 
@@ -130,7 +129,6 @@ Access Level | Access Requirement | Output
 1 | Anonymous | Monitoring API Only
 2 | Offline User | Basic (Analysis)[#analysis]
 3 | Online User | Full (Analysis)[#analysis]
-4 | Access to Sentinel Logs | Purging logs
 
 ### Access Level 2
 
@@ -161,10 +159,6 @@ Access Level | Access Requirement | Output
 ### Access Level 3
 
 Access Level `2` but add role `mm-online`. This gives the user access to all data on the instance.
-
-### Access Level 4
-
-Access Level `3` and alter `/medic-sentinel/_security` setting `members.roles` to include `app_monitoring`. 
 
 ### Analysis
 

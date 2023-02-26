@@ -21,7 +21,7 @@ const scrape = async instance => {
     const monitoring = await fetchWithoutAuth(url, '/api/v1/monitoring');
     console.log(`Monitor for ${url}: ${!!monitoring}`);
 
-    let settings, klipDatasources, forms, users, analysis, logs;
+    let settings, klipDatasources, forms, users, analysis;
     if (instance.klipfolioClientId) {
       klipDatasources = await fetchKlipDatasourceStatus(instance.klipfolioClientId, instance.klipfolioApiKey);
     }
@@ -40,13 +40,6 @@ const scrape = async instance => {
       console.log(`Successful analysis of ${url}...`);
     }
 
-    // user account with online role and access to medic-sentinel
-    if (instance.access > 3) {
-      const timestampOneMonthAgo = new Date().getTime() - 30 * 24 * 60 * 60 * 1000;
-      const fetched = await fetchWithAuth(url, instance, `/medic-sentinel/_all_docs?startkey=%22purgelog:${timestampOneMonthAgo}%22&endkey=%22purgelog:\\ufff0%22&include_docs=true`);
-      logs = fetched.rows.map(row => row.doc);
-    }
-
     return {
       urlId: instance.urlId,
       status: 'ok',
@@ -54,7 +47,6 @@ const scrape = async instance => {
       klipDatasources,
       monitoring,
       analysis,
-      logs,
     };
   } catch (e) {
     console.log(`CRASH`, e);
