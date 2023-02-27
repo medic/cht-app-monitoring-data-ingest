@@ -6,7 +6,7 @@ AS
     ic.partner_short_name,
     fn.metric,
     fn.count
-  FROM get_replication_doc_count() AS fn(partner, metric, count)
+  FROM get_replication_failure_reasons() AS fn(partner, metric, count)
   INNER JOIN impactconfig AS ic ON fn.partner = ic.partner_name
 
 WITH DATA;

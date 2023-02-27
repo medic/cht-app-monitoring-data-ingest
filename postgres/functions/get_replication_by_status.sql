@@ -1,5 +1,5 @@
 CREATE OR REPLACE FUNCTION public.get_replication_by_status()
-  RETURNS TABLE(partner text, period_start date, load_replication_success_count integer, replication_failure_count integer, replication_denied_count integer)
+  RETURNS TABLE(partner text, period_start date, replication_success_count integer, replication_failure_count integer, replication_denied_count integer, replication_error_count integer)
   LANGUAGE plpgsql
 AS $function$
 DECLARE partners CURSOR IS (
@@ -86,7 +86,7 @@ GROUP BY 1, 2
 ;
         ',
         FALSE
-    ) completions(partner text, period_start date, load_replication_success_count integer, replication_failure_count integer, 	replication_denied_count integer);
+    ) completions(partner text, period_start date, replication_success_count integer, replication_failure_count integer, 	replication_denied_count integer, replication_error_count integer);
 END LOOP;
 END;
 $function$;
