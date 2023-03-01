@@ -6,7 +6,7 @@
 CREATE MATERIALIZED VIEW public.app_monitoring_sms_error_and_users_docs_replication
 TABLESPACE pg_default
 AS
-SELECT distinct ON (COALESCE(partner_name, urls.url),
+SELECT DISTINCT ON (COALESCE(partner_name, urls.url),
     TO_DATE(created::text, 'YYYY-MM-DD')) partner_name,
     TO_DATE(created::text, 'YYYY-MM-DD') AS created,
     COALESCE((doc #>>'{messaging,outgoing,state,due}')::int,0)as due,
