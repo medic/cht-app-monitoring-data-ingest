@@ -8,7 +8,7 @@ TABLESPACE pg_default
 AS
 SELECT DISTINCT ON (COALESCE(partner_name, urls.url),
     TO_DATE(created::text, 'YYYY-MM-DD')) partner_name,
-    TO_DATE(created::text, 'YYYY-MM-DD') AS created,
+    TO_DATE(created::text, 'YYYY-MM-DD') AS reported,
     COALESCE((doc #>>'{messaging,outgoing,state,due}')::int,0)as due,
     COALESCE((doc #>>'{messaging,outgoing,state,muted}')::int,0)as muted,
     COALESCE((doc #>>'{messaging,outgoing,state,failed}')::int,0)as failed,
