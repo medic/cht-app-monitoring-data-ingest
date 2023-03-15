@@ -23,18 +23,6 @@ CREATE TABLE public.monitoring_docs (
 );
 ALTER TABLE public.monitoring_docs OWNER TO full_access;
 
-CREATE TABLE public.monitoring_logs (
-  id SERIAL PRIMARY KEY,
-  url_id INTEGER NOT NULL,
-  created TIMESTAMP DEFAULT NOW(),
-  doc_id VARCHAR NOT NULL,
-  doc JSONB NOT NULL,
-  CONSTRAINT fk_url
-    FOREIGN KEY(url_id)
-      REFERENCES monitoring_urls(id)
-);
-ALTER TABLE public.monitoring_logs OWNER TO full_access;
-
 CREATE TABLE public.monitoring_couchpg (
   partner_name text,
   created DATE NOT NULL,
@@ -48,10 +36,6 @@ CREATE TABLE public.monitoring_couchpg (
 ALTER TABLE public.monitoring_couchpg OWNER TO full_access;
 
 -- This constraint is used for upsert
--- `ON CONFLICT ON CONSTRAINT monitoring_logs_idx_constraint DO NOTHING`
-CREATE UNIQUE INDEX monitoring_logs_idx ON monitoring_logs(url_id, doc_id);
-ALTER TABLE monitoring_logs ADD CONSTRAINT monitoring_logs_idx_constraint UNIQUE USING INDEX monitoring_logs_idx;
-
 -- `ON CONFLICT ON CONSTRAINT monitoring_couchpg_idx_constraint DO NOTHING`
 CREATE UNIQUE INDEX monitoring_couchpg_idx ON monitoring_couchpg(partner_name, created, source);
 ALTER TABLE monitoring_couchpg ADD CONSTRAINT monitoring_couchpg_idx_constraint UNIQUE USING INDEX monitoring_couchpg_idx;
