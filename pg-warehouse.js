@@ -49,10 +49,6 @@ class PostgresWarehouse {
     await queryInsertDoc(this.client, result.urlId, 'settings', result.settings);
     await queryInsertDoc(this.client, result.urlId, 'monitoring', result.monitoring);
     await queryInsertDoc(this.client, result.urlId, 'klipfolio_datasource', result.klipDatasources);
-
-    for (const log of result.logs || []) {
-      await queryInsertLog(this.client, result.urlId, log);
-    }
   }
   
   async disconnect() {
@@ -81,12 +77,6 @@ const queryInsertDoc = async (client, urlId, docType, doc) => {
 
   console.log(`${result.rowCount} is inserted successfully`);
   return result;
-};
-
-const queryInsertLog = (client, urlId, log) => {
-  const query = `INSERT INTO monitoring_logs (url_id, doc_id, doc) VALUES ($1, $2, $3) ON CONFLICT ON CONSTRAINT monitoring_logs_idx_constraint DO NOTHING;`;
-  const insertParams = [urlId, log._id, JSON.stringify(log)];
-  return client.query(query, insertParams);
 };
 
 module.exports = PostgresWarehouse;
