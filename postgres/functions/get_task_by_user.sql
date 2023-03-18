@@ -23,27 +23,28 @@ BEGIN
                 credentials.password
             ),
             '
-            SELECT
-                s.chw,
-                s.task,
-                current_database() as partner,
-                count(s.state) as docs,
-                count(s.state) filter ( where state=''Cancelled'' ) as cancelled,
-                count(s.state) filter ( where state=''Completed'' ) as completed
-            FROM (
-                SELECT 
-                    doc->>''user'' as chw,
-                    doc#>>''{emission,contact,name}'' as contact,
-                    state, 
-                    (doc#>>''{emission,title}'') as task,  
-                    date_trunc(''day'', to_timestamp(((timestamp)::bigint / 1000)::double precision)) as day 
-                FROM 
-                    couchdb cross join lateral json_populate_recordset(null::record, (doc->>''stateHistory'')::json) AS (state text, timestamp bigint) 
-                WHERE 
-                    doc->>''type''=''task'' AND to_timestamp(((doc->>''authoredOn'')::bigint / 1000)::double precision) > date_trunc(''day'', now() - (''120 days'')::interval)::timestamp
-            ) s
-            group by
-                chw, task;
+SELECT
+    s.chw,
+    s.task,
+    current_database() as partner,
+    count(s.state) as docs,
+    count(s.state) filter ( where state=''Cancelled'' ) as cancelled,
+    count(s.state) filter ( where state=''Completed'' ) as completed
+FROM (
+    SELECT 
+        doc->>''user'' as chw,
+        doc#>>''{emission,contact,name}'' as contact,
+        doc#>>''{state}'' as state,
+        (doc#>>''{emission,title}'') as task,  
+        date_trunc(''day'', to_timestamp((doc ->> ''authoredOn'')::bigint / 1000)) AS day
+    FROM 
+        couchdb
+    WHERE 
+        doc ->> ''type'' = ''task''
+        AND (doc ->> ''authoredOn'')::double precision / 1000 >= extract(epoch from date_trunc(''day'', now() - ''120 days''::interval))
+) s
+GROUP BY
+    chw, task;
             ',
             FALSE
         ) tasks(chw text, task text, partner text, docs int, cancelled int, completed int);

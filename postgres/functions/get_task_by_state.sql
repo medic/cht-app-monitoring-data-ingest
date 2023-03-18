@@ -35,17 +35,16 @@ BEGIN
             FROM (
                 SELECT
                     doc->>''_id'' AS doc,
-                    state,
-                    (doc#>>''{emission,title}'') as task,
-                    date_trunc(''day'', to_timestamp(((timestamp)::bigint / 1000)::double precision)) AS day
+                    doc#>>''{state}'' as state,
+                    doc#>>''{emission,title}'' as task,
+                    date_trunc(''day'', to_timestamp((doc ->> ''authoredOn'')::bigint / 1000)) AS day
                 FROM
                     couchdb
-                CROSS JOIN LATERAL json_populate_recordset(null::record, (doc->>''stateHistory'')::json) AS (state text, timestamp bigint) 
                 WHERE
-                    doc->>''type''=''task'' AND to_timestamp(((doc->>''authoredOn'')::bigint / 1000)::double precision) > date_trunc(''day'', now() - (''120 days'')::interval)::timestamp
+                    doc ->> ''type'' = ''task'' 
+                    AND (doc ->> ''authoredOn'')::double precision / 1000 >= extract(epoch from date_trunc(''day'', now() - ''120 days''::interval))
             ) s
-            group by
-                day, task;
+            GROUP BY day, task;
             ',
             FALSE
         ) tasks(task text, partner text, ready int, draft int, cancelled int, completed int, failed int, day date);
