@@ -1,5 +1,5 @@
-CREATE OR REPLACE FUNCTION public.get_users_with_insufficient_chrome()
-  RETURNS TABLE(partner text, user_name text, chrome_version integer)
+CREATE OR REPLACE FUNCTION public.s()
+  RETURNS TABLE(partner text, user_name text, chrome_version integer, required_chrome_version integer)
   LANGUAGE plpgsql
 AS $function$
 DECLARE partners CURSOR IS (
@@ -72,7 +72,7 @@ WHERE chrome_version < required_chrome_version
 ;
         ',
         FALSE
-    ) query_result(partner text, user_name text, chrome_version integer);
+    ) query_result(partner text, user_name text, chrome_version integer, required_chrome_version integer);
 END LOOP;
 END;
 $function$
