@@ -40,7 +40,7 @@ FROM (
     DISTINCT ON (doc #>> ''{metadata,user}'')
     doc #>> ''{metadata,user}'' as user_name,
     CASE 
-	  	WHEN string_to_array("substring"(doc #>> ''{metadata,versions,app}'', ''(\d+.\d+.\d+)''), ''.'')::integer[] < ''{4,0,0}''::integer[] THEN 53
+	  	WHEN string_to_array("substring"(doc #>> ''{metadata,versions,app}'', ''(\d+.\d+.\d+)''), ''.'')::integer[] < ''{4,0,0}''::integer[] THEN 52
 	  	ELSE 71
 	  END AS required_chrome_version,
     substring(doc #>> ''{device,userAgent}'' from ''Chrome\/(\d{2,3})'')::int AS chrome_version
