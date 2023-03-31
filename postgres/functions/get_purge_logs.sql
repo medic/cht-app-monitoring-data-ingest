@@ -32,7 +32,7 @@ SELECT
 FROM couchdb
 WHERE
   doc #>> ''{_id}'' like ''purgelog:%''
-  AND (doc ->> ''date'')::timestamptz > now() - ''120 days''::interval
+  AND (doc ->> ''date'')::timestamptz > now() - ''60 days''::interval
 ;
             ',
             FALSE

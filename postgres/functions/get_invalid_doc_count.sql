@@ -31,7 +31,7 @@ BEGIN
                 couchdb
             WHERE
                 doc->>''type'' = ''data_record'' AND doc->>''errors'' IS NOT NULL AND jsonb_array_length((doc->>''errors'')::jsonb) > 0 
-                AND date_trunc(''day'', to_timestamp(((doc ->> ''reported_date'')::bigint / 1000)::double precision)) > date_trunc(''day'', now() - (''120 days'')::interval)
+                AND date_trunc(''day'', to_timestamp(((doc ->> ''reported_date'')::bigint / 1000)::double precision)) > date_trunc(''day'', now() - (''60 days'')::interval)
             GROUP BY
                 day
             ',
