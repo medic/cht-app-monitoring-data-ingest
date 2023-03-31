@@ -33,9 +33,22 @@ SELECT
   DISTINCT ON (user_name)
   current_database() as partner,
   user_name,
-  chrome_version
+  chrome_version,
+  required_chrome_version
 FROM (
   SELECT
+    DISTINCT ON (doc #>> ''{metadata,user}'')
+    doc #>> ''{metadata,user}'' as user_name,
+    CASE 
+	  	WHEN string_to_array("substring"(doc #>> ''{metadata,versions,app}'', ''(\d+.\d+.\d+)''), ''.'')::integer[] < ''{4,0,0}''::integer[] THEN 53
+	  	ELSE 71
+	  END AS required_chrome_version,
+    substring(doc #>> ''{device,userAgent}'' from ''Chrome\/(\d{2,3})'')::int AS chrome_version
+  FROM couchdb_users_meta
+  WHERE
+    doc ->> ''type'' = ''telemetry''
+  ORDER BY
+    doc #>> ''{metadata,user}'' ASC,
     CONCAT_WS(
       ''-''::text, doc #>> ''{metadata,year}'',
       CASE
@@ -45,7 +58,7 @@ FROM (
               doc #>> ''{metadata,versions,app}'' IS NULL or 
               string_to_array("substring"(doc #>> ''{metadata,versions,app}'', ''(\d+.\d+.\d+)''), ''.'')::integer[] < ''{3,8,0}''::integer[]
             )
-          THEN ((doc #>> ''{metadata,month}'')::integer) + 1
+          THEN (doc #>> ''{metadata,month}'')::integer + 1
           ELSE (doc #>> ''{metadata,month}'')::integer
       END,
       CASE
@@ -53,19 +66,9 @@ FROM (
           THEN doc #>> ''{metadata,day}''
           ELSE ''1''::text
       END
-    )::date AS period_start,
-    doc #>> ''{metadata,user}'' as user_name,
-    CASE 
-	  	WHEN string_to_array("substring"(doc #>> ''{metadata,versions,app}'', ''(\d+.\d+.\d+)''), ''.'')::integer[] < ''{4,0,0}''::integer[] then 53
-	  	else 71
-	  END AS required_chrome_version,
-    substring(doc #>> ''{device,userAgent}'' from ''Chrome\/(\d{2,3})'')::int as chrome_version
-  FROM couchdb_users_meta
-  WHERE
-    doc ->> ''type'' = ''telemetry''
+    )::date DESC 
 ) T
 WHERE chrome_version < required_chrome_version
-ORDER BY user_name ASC, period_start DESC
 ;
         ',
         FALSE
