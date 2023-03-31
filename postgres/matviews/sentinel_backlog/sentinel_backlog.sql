@@ -9,10 +9,15 @@ CREATE MATERIALIZED VIEW app_monitoring_sentinel_backlog AS (
         )::double precision
       )
     )::DATE AS reported,
-    --https://github.com/medic/cht-core/issues/7113
     CASE
-      WHEN doc #>>'{version,app}' ~ '^\d*\.\d*\.\d*$' AND regexp_split_to_array((doc#>>'{version,app}'), '\.')::int[] < '{3,12,0}'::int[]
+      --https://github.com/medic/cht-core/issues/7113
+      WHEN doc #>> '{version,app}' ~ '^\d*\.\d*\.\d*$' AND regexp_split_to_array((doc#>>'{version,app}'), '\.')::int[] < '{3,12,0}'::int[]
       THEN NULL::bigint
+
+      -- https://github.com/medic/cht-core/issues/8162
+      WHEN doc #>> '{version,app}' ~ '^\d*\.\d*\.\d*$' AND regexp_split_to_array((doc#>>'{version,app}'), '\.')::int[] = '{4,1,0}'::int[]
+      THEN NULL::bigint
+      
       ELSE (doc#>>'{sentinel,backlog}')::bigint
     END as sentinel_backlog
   FROM (
