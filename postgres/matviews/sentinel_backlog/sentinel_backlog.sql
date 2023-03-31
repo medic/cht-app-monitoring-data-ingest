@@ -15,7 +15,7 @@ CREATE MATERIALIZED VIEW app_monitoring_sentinel_backlog AS (
       THEN NULL::bigint
 
       -- https://github.com/medic/cht-core/issues/8162
-      WHEN doc #>> '{version,app}' ~ '^\d*\.\d*\.\d*$' AND regexp_split_to_array((doc#>>'{version,app}'), '\.')::int[] = '{4,1,0}'::int[]
+      WHEN doc #>> '{version,app}' ~ '\d\.\d\.\d' AND regexp_split_to_array(substring(doc #>> '{version,app}' from '\d\.\d\.\d'), '\.')::int[] = '{4,1,0}'::int[]
       THEN NULL::bigint
       
       ELSE (doc#>>'{sentinel,backlog}')::bigint
