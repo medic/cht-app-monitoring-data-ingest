@@ -25,12 +25,14 @@ BEGIN
                 credentials.user,
                 credentials.password
               ), 
-'select
-  current_database() as partner_name,
-  date_trunc(''day'', now()) as created,
-  split_part(seq, ''-'', 1) as seq,
-  split_part(source, ''/'', 2) as source
-from couchdb_progress;',
+'SELECT
+  current_database() AS partner_name,
+  date_trunc(''day'', now()) AS created,
+  split_part(seq, ''-'', 1) AS seq,
+  split_part(source, ''/'', 2) AS source
+FROM couchdb_progress
+WHERE seq != ''0''
+;',
               FALSE
           ) couchdb_progress(partner_name text, created date, seq bigint, source text)
       ON CONFLICT ON CONSTRAINT monitoring_couchpg_idx_constraint DO NOTHING
