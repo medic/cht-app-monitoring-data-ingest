@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION public.s()
+CREATE OR REPLACE FUNCTION public.get_users_with_insufficient_chrome()
   RETURNS TABLE(partner text, user_name text, chrome_version integer, required_chrome_version integer)
   LANGUAGE plpgsql
 AS $function$
@@ -30,7 +30,6 @@ BEGIN
     ),
         '
 SELECT
-  DISTINCT ON (user_name)
   current_database() as partner,
   user_name,
   chrome_version,
@@ -40,8 +39,9 @@ FROM (
     DISTINCT ON (doc #>> ''{metadata,user}'')
     doc #>> ''{metadata,user}'' as user_name,
     CASE 
-	  	WHEN string_to_array("substring"(doc #>> ''{metadata,versions,app}'', ''(\d+.\d+.\d+)''), ''.'')::integer[] < ''{4,0,0}''::integer[] THEN 52
-	  	ELSE 71
+      -- https://github.com/medic/cht-core/issues/8161
+	  	WHEN doc #>> ''{metadata,versions,app}'' = ''unknown'' THEN 71
+	  	ELSE 52
 	  END AS required_chrome_version,
     substring(doc #>> ''{device,userAgent}'' from ''Chrome\/(\d{2,3})'')::int AS chrome_version
   FROM couchdb_users_meta
