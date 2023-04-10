@@ -42,7 +42,7 @@ BEGIN
                     couchdb
                 WHERE
                     doc ->> ''type'' = ''task'' 
-                    AND (doc ->> ''authoredOn'')::double precision / 1000 >= extract(epoch from date_trunc(''day'', now() - ''120 days''::interval))
+                    AND (doc ->> ''authoredOn'')::double precision / 1000 >= extract(epoch from date_trunc(''day'', now() - ''60 days''::interval))
             ) s
             GROUP BY day, task;
             ',
