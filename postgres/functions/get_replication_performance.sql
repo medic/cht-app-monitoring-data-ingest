@@ -72,23 +72,24 @@ select
   current_database() AS partner,
   metric,
   period_start,
-  min(min),
-  sum(count),
-  sum(sum) / sum(count) as mean,
-  sum(sum*count)/ sum(count) as weighted_mean,
-  max(max),
-  percentile_disc(0.5) within group (order by COALESCE(sum*count, 0) / count) as median,
-  percentile_disc(0.9) within group (order by COALESCE(sum*count, 0) / count) as quartile_90th,
-  percentile_disc(0.99) within group (order by COALESCE(sum*count, 0) / count) as quartile_99th
+  min,
+  count,
+  sum /count as mean,
+  max,
+  ROUND(
+  	PERCENT_RANK() over (
+  		partition by current_database(), metric
+  		order by current_database(), metric, sum /count
+  	)::decimal
+  , 2) as percentile
 from telemetry_metrics
 where 
   metric LIKE ''replication:medic:%:success''
   and period_start > now() - ''45 days''::interval
-group by 1, 2, 3
 ;
         ',
         FALSE
-    ) completions(partner text, metric text, period_start date, min numeric, sum numeric, mean float, weighted_mean float, max numeric, median numeric, quartile_90th numeric, quartile_99th numeric);
+    ) completions(partner text, metric text, period_start date, min numeric, sum numeric, mean float, max numeric, percentile decimal);
 END LOOP;
 END;
 $function$;
