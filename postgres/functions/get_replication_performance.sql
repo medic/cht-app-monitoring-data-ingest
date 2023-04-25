@@ -67,29 +67,44 @@ telemetry_metrics AS (
     sumsqr
   FROM telemetry_docs_with_metric_blob
   CROSS JOIN LATERAL jsonb_to_record(metric_values) AS (min decimal, max decimal, sum decimal, count bigint, sumsqr decimal)
+),
+percentile_metric AS (
+  SELECT
+    current_database() AS partner,
+    metric,
+    period_start,
+    min,
+    sum,
+    count,
+    sum /count as mean,
+    max,
+    ROUND(
+  	  PERCENT_RANK() over (
+  		PARTITION BY current_database(), metric, period_start
+  		ORDER BY current_database(), metric, period_start, sum /count
+  	  )::decimal
+   , 2) AS percentile
+  FROM telemetry_metrics
+  WHERE metric LIKE ''replication:medic:%:success''
+    AND period_start > now() - ''45 days''::interval
 )
-select
-  current_database() AS partner,
+SELECT
+  partner,
   metric,
   period_start,
-  min,
-  count,
-  sum /count as mean,
-  max,
-  ROUND(
-  	PERCENT_RANK() over (
-  		partition by current_database(), metric
-  		order by current_database(), metric, sum /count
-  	)::decimal
-  , 2) as percentile
-from telemetry_metrics
-where 
-  metric LIKE ''replication:medic:%:success''
-  and period_start > now() - ''45 days''::interval
-;
+  min(min),
+  sum(sum) AS sum,
+  sum(count)  AS count,
+  sum(sum) / sum(count) AS mean,
+  max(max),
+  sum(mean) FILTER(WHERE percentile = 0.5) AS percent_50th,
+  sum(mean) FILTER(WHERE percentile = 0.9) AS percent_90th,
+  sum(mean) FILTER(WHERE percentile = 0.99) AS percent_99th
+FROM  percentile_metric
+GROUP BY 1, 2, 3
         ',
         FALSE
-    ) completions(partner text, metric text, period_start date, min numeric, sum numeric, mean float, max numeric, percentile decimal);
+    ) completions(partner text, metric text, period_start date, min numeric, sum numeric, mean float, max numeric, percent_50th decimal, percent_90th decimal, percent_99th decimal);
 END LOOP;
 END;
 $function$;
