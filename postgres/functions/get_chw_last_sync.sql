@@ -25,13 +25,13 @@ BEGIN
                 current_database() as partner,
                 form.chw as chw_id,
                 c_user.doc->>''name'' as chw_username,
-                max(c_info.doc->>''latest_replication_date'') as last_sync
+                max(c_info.doc->>''latest_replication_date'')::date as last_sync
             FROM
                 form_metadata form
             JOIN couchdb c_info ON form.uuid=c_info.doc->>''doc_id''
             JOIN couchdb c_user ON form.chw=c_user.doc->>''contact_id''
             WHERE
-                c_info.doc->>''type'' = ''info'' and c_user.doc->>''type''=''user-settings''
+                c_info.doc->>''type'' = ''info'' and c_info.doc->>''latest_replication_date'' != ''unknown'' and c_user.doc->>''type''=''user-settings''
             GROUP BY
                 form.chw, c_user.doc->>''name'';
             ',
