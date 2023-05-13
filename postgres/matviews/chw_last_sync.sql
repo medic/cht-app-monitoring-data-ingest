@@ -5,7 +5,8 @@ AS
     fn.partner AS partner_name,
     fn.chw_id,
     fn.chw_username,
-    fn.last_sync
+    fn.last_sync,
+    EXTRACT(DAY FROM now() - fn.last_sync) AS days_since_last_sync
   FROM get_chw_last_sync() AS fn(partner, chw_id, chw_username, last_sync)
   INNER JOIN impactconfig AS ic ON fn.partner = ic.partner_name
 WITH DATA;
