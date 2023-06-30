@@ -23,6 +23,7 @@ CREATE MATERIALIZED VIEW app_monitoring_klipfolio_datasource_refresh AS
     COUNT(*) FILTER ( WHERE refresh_age > refresh_interval )/total_datasources AS percent_failed_refresh
   FROM refresh_age_CTE AS docs
   LEFT JOIN monitoring_urls AS partners ON (partners.id = docs.url_id)
+  WHERE refresh_interval <> 0
   GROUP by docs.id, created, total_datasources, partner_name;
 
 CREATE UNIQUE INDEX IF NOT EXISTS app_monitoring_klipfolio_datasource_refresh_id_created_partner_name ON app_monitoring_klipfolio_datasource_refresh USING btree(id, created, partner_name);
