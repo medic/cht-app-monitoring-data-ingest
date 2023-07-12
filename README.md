@@ -191,3 +191,7 @@ appSettingRevs | Number of revisions to the `settings` document. This number cha
 formRevs | Number of revisions to form documents. This number changes once per form each time `medic-conf upload-app-forms upload-contact-forms` has an effect
 permission.* | Number of users with this permission (Access Level 3 required)
 transitions.* | True if the transition is enabled for this project
+
+## Dependencies
+
+Monitors projects using cht-couch2pg v3.6.2 and above.

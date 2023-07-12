@@ -29,37 +29,7 @@ BEGIN
         creds.password
     ),
         '
-WITH useview_telemetry_devices AS (
-  SELECT
-    DISTINCT ON (doc #>> ''{metadata,deviceId}'', doc #>> ''{metadata,user}'')
-    doc #>> ''{metadata,deviceId}'' AS device_id,
-    doc #>> ''{metadata,user}'' AS user_name,
-    
-    concat_ws(
-      ''-'',
-      doc #>> ''{metadata,year}'',
-      CASE
-        WHEN 
-          doc #>> ''{metadata,day}'' IS NULL 
-          AND (
-            doc #>> ''{metadata,versions,app}'' IS NULL 
-            OR string_to_array("substring"(doc #>> ''{metadata,versions,app}'', ''(\d+.\d+.\d+)''), ''.'')::integer[] < ''{3,8,0}''::integer[]
-          ) 
-        THEN (doc #>> ''{metadata,month}'')::integer + 1
-        ELSE (doc #>> ''{metadata,month}'')::integer
-      END,
-      CASE
-        WHEN doc #>> ''{metadata,day}'' IS NOT NULL 
-        THEN doc #>> ''{metadata,day}''
-        ELSE ''1''
-      END
-    )::date AS period_start
-  FROM couchdb_users_meta
-  WHERE doc ->> ''type'' = ''telemetry''
-  ORDER BY 1, 2, 3 ASC
-),
-
-dates AS (
+WITH dates AS (
   SELECT generate_series(now() - ''60 days''::interval, now(), ''1 day''::interval)::date AS date
 )
 

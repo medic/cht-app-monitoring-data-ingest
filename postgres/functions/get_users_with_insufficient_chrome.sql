@@ -36,37 +36,19 @@ SELECT
   required_chrome_version
 FROM (
   SELECT
-    DISTINCT ON (doc #>> ''{metadata,user}'')
-    doc #>> ''{metadata,user}'' as user_name,
+    DISTINCT ON (user_name)
+    user_name,
     CASE 
       -- https://github.com/medic/cht-core/issues/8161
-	  	WHEN doc #>> ''{metadata,versions,app}'' = ''unknown'' THEN 71
-	  	ELSE 52
-	  END AS required_chrome_version,
-    substring(doc #>> ''{device,userAgent}'' from ''Chrome\/(\d{2,3})'')::int AS chrome_version
-  FROM couchdb_users_meta
-  WHERE
-    doc ->> ''type'' = ''telemetry''
+	  WHEN doc #>> ''{metadata,versions,app}'' = ''unknown'' THEN 71
+	  ELSE 52
+	END AS required_chrome_version,
+    substring(user_agent FROM ''Chrome\/(\d{2,3})'')::int AS chrome_version
+  FROM useview_telemetry_devices
+  LEFT JOIN couchdb_users_meta ON doc ->> ''_id'' = useview_telemetry_devices.telemetry_doc_id
   ORDER BY
-    doc #>> ''{metadata,user}'' ASC,
-    CONCAT_WS(
-      ''-''::text, doc #>> ''{metadata,year}'',
-      CASE
-          WHEN
-            doc #>> ''{metadata,day}'' IS NULL -- some telemetry documents have version 3.4, but have the modern daily metadata
-            AND (
-              doc #>> ''{metadata,versions,app}'' IS NULL or 
-              string_to_array("substring"(doc #>> ''{metadata,versions,app}'', ''(\d+.\d+.\d+)''), ''.'')::integer[] < ''{3,8,0}''::integer[]
-            )
-          THEN (doc #>> ''{metadata,month}'')::integer + 1
-          ELSE (doc #>> ''{metadata,month}'')::integer
-      END,
-      CASE
-          WHEN (doc #>> ''{metadata,day}'') IS NOT NULL
-          THEN doc #>> ''{metadata,day}''
-          ELSE ''1''::text
-      END
-    )::date DESC 
+    user_name ASC,
+    period_start DESC 
 ) T
 WHERE chrome_version < required_chrome_version
 ;
