@@ -18,4 +18,4 @@ END;
 $function$;
 
 -- Called in refresh_app_monitoring.sh
--- cron configured as 'postgres:0 1 * * * /home/rdbms/dwh_impact/refresh_app_monitoring.sh'
+-- See README for cron configuration

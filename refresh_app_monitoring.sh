@@ -5,3 +5,4 @@ then
     curl -X POST -H 'Content-type: application/json' --data '{"text": "Refresh Failed"}' https://hooks.slack.com/services/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
 fi
 
+# See README for cron configuration
