@@ -1,0 +1,16 @@
+{
+  "name": "user-oddities",
+  "version": "1.0.0",
+  "description": "user docs oddities",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Medic Mobile",
+  "license": "ISC",
+  "dependencies": {
+    "chai": "^4.3.7",
+    "fs": "^0.0.1-security",
+    "node-fetch": "^2.6.6"
+  }
+}
