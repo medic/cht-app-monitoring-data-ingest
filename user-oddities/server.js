@@ -22,15 +22,11 @@ const { mohMaliChwUserOddities } = require('./app-config/moh-mali-chw/moh-mali-c
         const contactIds = Object.values(userDocsInMedicDb).map(user => user.doc.contact_id);
         const contactDocs = await fetchDocsFromKeys(contactIds, appConfig.HOSTNAME, basicAuthHeader);
         expect(userDocsInUsersDb.length).to.eq(userDocIds.length, 'Expect all user docs in _users to have a corresponding doc in medic db.');
-        
-        if (appConfig.APPNAME === 'muso-mali') {
-            console.log(appConfig.APPNAME);
-            musoMaliUserOddities(userDocsInMedicDb, userDocsInUsersDb, facilityDocs, contactDocs);
-        }
 
-        if (appConfig.APPNAME === 'moh-mali-chw') {
-            console.log(appConfig.APPNAME);
-            mohMaliChwUserOddities(userDocsInMedicDb, userDocsInUsersDb, facilityDocs, contactDocs);
+        switch (appConfig.APPNAME) {
+            case 'muso-mali':
+                musoMaliUserOddities(userDocsInMedicDb, userDocsInUsersDb, facilityDocs, contactDocs);
+                break;
         }
 
         console.log(`${userDocsInUsersDb.length} total users`);
