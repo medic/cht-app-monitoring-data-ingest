@@ -1,5 +1,5 @@
 CREATE OR REPLACE FUNCTION public.get_forms_by_completion()
-  RETURNS TABLE(partner text, form_name text, load_count integer, complete_count integer)
+  RETURNS TABLE(partner text, username text, form_name text, load_count integer, complete_count integer)
   LANGUAGE plpgsql
 AS $function$
 DECLARE partners CURSOR IS (
@@ -32,6 +32,7 @@ BEGIN
 WITH telemetry_docs_with_metric_blob AS (
   SELECT
     doc->> ''_id'' AS id,
+    (doc #>> ''{metadata,user}'')::text AS username,
     concat_ws(
       ''-''::text, doc #>> ''{metadata,year}'',
       CASE
@@ -60,6 +61,7 @@ WITH telemetry_docs_with_metric_blob AS (
 telemetry_metrics AS (
   SELECT 
     id,
+    username,
     period_start,
     metric,
     min,
@@ -73,25 +75,26 @@ telemetry_metrics AS (
 
 SELECT
   current_database() AS partner,
+  username,
   split_part(metric, '':'', 3) AS form_name,
   COALESCE(SUM(count) filter (WHERE metric LIKE ''%:render''), 0) AS load_count,
-  COALESCE(SUM(count) filter (WHERE metric LIKE ''%:save''), 0) AS complete_count,
+  COALESCE(SUM(count) filter (WHERE metric LIKE ''%:save''), 0) AS complete_count
 
   
   -- this percentile is misrepresentative for any project with monthly telemetry docs
   -- same performance as percentile_disc(array[0.1, 0.5, 0.9])
-  percentile_disc(0.1) within group (order by COALESCE(sum, 0) / count) filter (where metric like ''%:user_edit_time'') as completion_time_10percentile,
-  percentile_disc(0.5) within group (order by COALESCE(sum, 0) / count) filter (where metric like ''%:user_edit_time'') as completion_time_50percentile,
-  percentile_disc(0.9) within group (order by COALESCE(sum, 0) / count) filter (where metric like ''%:user_edit_time'') as completion_time_90percentile
+  -- percentile_disc(0.1) within group (order by COALESCE(sum, 0) / count) filter (where metric like ''%:user_edit_time'') as completion_time_10percentile,
+  -- percentile_disc(0.5) within group (order by COALESCE(sum, 0) / count) filter (where metric like ''%:user_edit_time'') as completion_time_50percentile,
+  -- percentile_disc(0.9) within group (order by COALESCE(sum, 0) / count) filter (where metric like ''%:user_edit_time'') as completion_time_90percentile
 FROM telemetry_metrics
 WHERE
   period_start >= now() - ''60 days''::interval
   and metric LIKE ''enketo:%'' AND metric LIKE ''%:add:%''
-GROUP BY 1, 2
+GROUP BY 1, 2, 3
 ;
         ',
         FALSE
-    ) completions(partner text, form_name text, load_count integer, complete_count integer);
+    ) completions(partner text, username text, form_name text, load_count integer, complete_count integer);
 END LOOP;
 END;
 $function$
