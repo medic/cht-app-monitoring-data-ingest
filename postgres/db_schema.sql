@@ -39,3 +39,13 @@ ALTER TABLE public.monitoring_couchpg OWNER TO full_access;
 -- `ON CONFLICT ON CONSTRAINT monitoring_couchpg_idx_constraint DO NOTHING`
 CREATE UNIQUE INDEX monitoring_couchpg_idx ON monitoring_couchpg(partner_name, created, source);
 ALTER TABLE monitoring_couchpg ADD CONSTRAINT monitoring_couchpg_idx_constraint UNIQUE USING INDEX monitoring_couchpg_idx;
+
+CREATE TABLE public.partner_repositories (
+  partner_name text,
+  gh_organization varchar(255) DEFAULT 'medic',
+	gh_repository varchar(255),
+  CONSTRAINT fk_partner_name
+    FOREIGN KEY(partner_name)
+      REFERENCES impactconfig(partner_name)
+);
+ALTER TABLE public.partner_repositories OWNER TO full_access;
