@@ -2,7 +2,6 @@ const { expect } = require('chai');
 const fetch = require('node-fetch');
 const { fetchAppConfigurations, fetchDocsFromKeys, fetchJson } = require('./app-modules');
 const { musoMaliUserOddities } = require('./app-config/muso-mali/muso-mali-user-oddities');
-const { mohMaliChwUserOddities } = require('./app-config/moh-mali-chw/moh-mali-chw-user-oddities');
 
 (async () => {
     const appConfigs = await fetchAppConfigurations();
@@ -34,28 +33,3 @@ const { mohMaliChwUserOddities } = require('./app-config/moh-mali-chw/moh-mali-c
         console.log(`${notActive.length} in-active users`);
     }
 })();
-
-
-/*
-{
-        "APPNAME": "localhost",
-        "USERNAME": "medic",
-        "PASSWORD": "password",
-        "HOSTNAME": "http://localhost:5988",
-        "USERTOIGNORE": [
-            "admin",
-            "medic-api",
-            "medic-sentinel",
-            "muso-sih",
-            "horticulturalist"
-        ],
-        "ROLE": [
-            "chw_uhc",
-            "supervisor",
-            "health_center",
-            "national_admin",
-            "horticulturalist"
-        ]
-    },
-
-    */

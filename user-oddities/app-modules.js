@@ -2,7 +2,6 @@
 const Fs = require('fs/promises');
 const fetch = require('node-fetch');
 
-
 const fetchJson = async (url, path, options) => (await fetch(`${url}/${path}`, options)).json();
 
 const fetchAppConfigurations = async () => {
