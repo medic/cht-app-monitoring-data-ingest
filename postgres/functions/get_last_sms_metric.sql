@@ -1,5 +1,5 @@
-DROP FUNCTION get_last_sms_metric();
-CREATE OR REPLACE FUNCTION get_last_sms_metric() RETURNS TABLE(partner_name text, reported date, due int, delivered int, scheduled int) AS $$
+DROP FUNCTION get_last_sms_metric(include_days text);
+CREATE OR REPLACE FUNCTION get_last_sms_metric(include_days text default '121'::text) RETURNS TABLE(partner_name text, reported date, due int, delivered int, scheduled int) AS $$
 DECLARE partners cursor IS (
         SELECT DISTINCT ON (ic.partner_name) ic.partner_name AS name FROM impactconfig ic WHERE ic.close_date is NULL
     );
@@ -25,7 +25,7 @@ BEGIN
 	            from 
 	                app_monitoring_sms_error_and_users_docs_replication a
 	            where 
-	                a.reported >= (now() - '14 days'::interval)::date and a.partner_name = partner.name
+	                a.reported >= (now() - (include_days || ' days')::interval)::date and a.partner_name = partner.name
 	            order by a.partner_name, a.reported desc
 	        ) 
 	        select 
@@ -38,7 +38,8 @@ BEGIN
 	    ) s
 	    order by s.reported desc
     ) query
-    order by query.reported desc;
+    order by query.reported desc limit (include_days::integer - 1)
+;
 END LOOP;
 END;
 $$ language plpgsql;
