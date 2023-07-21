@@ -11,11 +11,12 @@ BEGIN
     SELECT value->>'user' AS user, value->>'password' AS password FROM configuration WHERE KEY = 'dblink' INTO credentials;
     FOR partner IN partners LOOP
     -- create connection
+    RAISE NOTICE 'Connecting to %', partner.name;
     PERFORM dblink_connect('app_monitoring_idx', FORMAT('dbname=%s host=localhost port=%s user=%s password=%s', partner.name, partner.port, credentials.user, credentials.password));
     -- create indexes if they don't exist
-    PERFORM dblink_exec('app_monitoring_idx', 'CREATE INDEX IF NOT EXISTS couchdb_doc_id ON couchdb USING BTREE ((doc->>''doc_id''));');
-    PERFORM dblink_exec('app_monitoring_idx', 'CREATE INDEX IF NOT EXISTS couchdb_doc_contact_id ON couchdb USING BTREE ((doc->>''contact_id''));');
-    PERFORM dblink_exec('app_monitoring_idx', 'CREATE INDEX IF NOT EXISTS couchdb_doc_replication_date ON couchdb USING BTREE ((doc->>''latest_replication_date''));');
+    PERFORM dblink_exec('app_monitoring_idx', 'CREATE INDEX IF NOT EXISTS app_monitoring_couchdb_doc_id ON couchdb USING BTREE ((doc->>''doc_id''));');
+    PERFORM dblink_exec('app_monitoring_idx', 'CREATE INDEX IF NOT EXISTS app_monitoring_couchdb_doc_contact_id ON couchdb USING BTREE ((doc->>''contact_id''));');
+    PERFORM dblink_exec('app_monitoring_idx', 'CREATE INDEX IF NOT EXISTS app_monitoring_couchdb_doc_replication_date ON couchdb USING BTREE ((doc->>''latest_replication_date''));');
     -- disconnect
     PERFORM dblink_disconnect('app_monitoring_idx');
     -- return query result
