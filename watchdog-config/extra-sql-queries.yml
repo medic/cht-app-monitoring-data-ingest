@@ -1,0 +1,28 @@
+replication_failure_reasons:
+  query: |
+    SELECT 
+      metric as failure_type,
+      sum(count) AS count,
+      failures.partner_name,
+      replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM 
+      app_monitoring_replication_failure_reasons as failures
+    LEFT JOIN 
+      monitoring_urls ON failures.partner_name=monitoring_urls.partner_name
+    GROUP BY 
+      failures.partner_name,
+      failure_type,
+      cht_instance
+    ORDER BY 
+      partner_name, count DESC
+  metrics:
+    - failure_type:
+        usage: "LABEL"
+    - partner_name:
+        usage: "LABEL"
+    - cht_instance:
+        usage: "LABEL"
+    - sequence:
+        usage: "TABLE"
+        description: "Replication failure reasons"
+
