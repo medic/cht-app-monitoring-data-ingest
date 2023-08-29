@@ -15,7 +15,7 @@ You would:
 1. Check out this repo so it's next to where `cht-watchdog` is checked out 
 2. Symlink in `watchdog-config` form this repo to base of `cht-watchdog` repo:
    ```
-   ln -s cht-app-monitoring-data-ingest/watchdog-config cht-watchdog/app-monitoring-data-ingest`
+   ln -s cht-app-monitoring-data-ingest/watchdog-config cht-watchdog/app-monitoring-data-ingest
    ```
 4. Add these to you `cht-watchdog/.env` for Watchdog docker compose, being sure to replace each of the 5 values:
    ```
