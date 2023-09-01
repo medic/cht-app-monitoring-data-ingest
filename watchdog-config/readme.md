@@ -97,6 +97,20 @@ Assuming your working on a local dev instance with read access to production dat
       partner_name, count DESC
    ```
    Be sure to test this query directly in a Postgres client.  This way you're sure it works before proceeding.
-3. Add this new query to `extra-sql-compose.yml`. Ensure the outermost line is a good name like `replication_failure_reasons` as it will show up in Grafana when you're prototyping the query. You can add as many queries as you want to this file.
+3. Add this new query to `extra-sql-compose.yml`. Ensure the outermost line is a good name, like `replication_failure_reasons`, as it will show up in Grafana when you're prototyping the query. You can add as many queries as you want to this file.
 4. Restart your docker containers being sure to use the same list of files you used to start it.
-5. In Grafana - navigate to the "Explore" 
+5. _OPTIONAL_: List the IP of your extra SQL exporter:
+   ```shell
+   docker inspect $(docker ps -q ) --format='{{ printf "%-50s" .Name}} {{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}'  | tr "\/" " "
+   ```
+And then browse to the `/metric` endpoint on port `9187` for the `cht-watchdog-extra_sql_exporter-1` container IP (eg `http://172.30.0.5:9187/metrics`). Verify you see the results of the query you just added. They'll be at the bottom of the page.
+7. In Grafana - navigate to the "Explore". In the "Metric" field, enter the name you used in step #3.
+8. Format the panel as you'd like.  In a tabular format, you may have to hide many of the columns you don't wish to show.
+9. Choose "Add to dashboard" at the top, select "CHT/CHT Admin Extra SQL" and choose "Open dashboard"
+10. Edit the panel you just added.  On the "Label filters" choose `cht_instance` and set it equal to `$cht_instance`. This will filter the table to only show the values from the currently selected CHT instance.
+11. Click the disk icon in the upper right and copy the JSON for the dashboard.
+12. Open the `extra-sql-dashboard.json` file.  Delete everything and paste in the JSON in your clibpard
+13. Commit the  `extra-sql-dashboard.json` and `extra-sql-queries.yml` files to this repo.
+14. SSH to the production Watchdog instance and pull from this repo to get the updated SQL and JSON files.
+15. Restart Watchdog's docker containers
+16. THe new panels should sohw up on the existing dashboard.

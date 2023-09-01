@@ -22,8 +22,8 @@ replication_failure_reasons:
         usage: "LABEL"
     - cht_instance:
         usage: "LABEL"
-    - sequence:
-        usage: "LABEL"
+    - count:
+        usage: "GAUGE"
 
 users_past_replication_limit:
   query: |
@@ -42,11 +42,36 @@ users_past_replication_limit:
       users.partner_name
   metrics:
     - user_count:
+        usage: "GAUGE"
+    - partner_name:
+        usage: "LABEL"
+    - cht_instance:
+        usage: "LABEL"
+
+users_with_insificient_disk:
+  query: |
+    SELECT
+      user_name AS user_name,
+      free_storage_mb AS free_storage_mb,
+      disk.partner_name,
+      replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM
+      public.app_monitoring_users_with_insufficient_disk as disk
+    LEFT JOIN
+      monitoring_urls ON disk.partner_name=monitoring_urls.partner_name
+    GROUP BY
+      disk.partner_name,
+      cht_instance,
+      user_name,
+      free_storage_mb
+    ORDER BY
+      free_storage_mb ASC
+  metrics:
+    - free_storage_mb:
+        usage: "GAUGE"
+    - user_name:
         usage: "LABEL"
     - partner_name:
         usage: "LABEL"
     - cht_instance:
         usage: "LABEL"
-    - sequence:
-        usage: "LABEL"
-
