@@ -2,11 +2,11 @@ services:
 
   prometheus:
     volumes:
-      - ~/cht-monitoring/app-monitoring-data-ingest/extra-sql-prometheus.yml:/etc/prometheus/scrape_configs/extra-sql-prometheus.yml:ro
+      - ./app-monitoring-data-ingest/extra-sql-prometheus.yml:/etc/prometheus/scrape_configs/extra-sql-prometheus.yml:ro
 
   grafana:
     volumes:
-      - ~/cht-monitoring/app-monitoring-data-ingest/extra-sql-dashboard.json:/etc/grafana/provisioning/dashboards/CHT/cht_admin_extra_sql.json:ro
+      - ./app-monitoring-data-ingest/extra-sql-dashboard.json:/etc/grafana/provisioning/dashboards/CHT/cht_admin_extra_sql.json:ro
 
   extra_sql_exporter:
     image: prometheuscommunity/postgres-exporter:latest
@@ -26,7 +26,7 @@ services:
       - '--disable-default-metrics'
       - '--disable-settings-metrics'
     volumes:
-      - ~/cht-monitoring/app-monitoring-data-ingest/extra-sql-queries.yml:/extra-sql-queries.yml
+      - ./app-monitoring-data-ingest/extra-sql-queries.yml:/extra-sql-queries.yml
     environment:
       DATA_SOURCE_NAME: "postgresql://${EXTRA_SQL_USER:-NO DB USER SPECIFIED}:${EXTRA_SQL_PASS:-NO DB PASSWORD SPECIFIED}@${EXTRA_SQL_SERVER:-.NO DB SERVER SPECIFIED}:${EXTRA_SQL_PORT:-5431}/${EXTRA_SQL_DATABASE:-dwh_impact}?sslmode=disable"
       PG_EXPORTER_EXTEND_QUERY_PATH: "/extra-sql-queries.yml"
