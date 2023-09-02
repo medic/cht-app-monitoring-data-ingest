@@ -103,7 +103,7 @@ Assuming your working on a local dev instance with read access to production dat
    ```shell
    docker inspect $(docker ps -q ) --format='{{ printf "%-50s" .Name}} {{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}'  | tr "\/" " "
    ```
-And then browse to the `/metric` endpoint on port `9187` for the `cht-watchdog-extra_sql_exporter-1` container IP (eg `http://172.30.0.5:9187/metrics`). Verify you see the results of the query you just added. They'll be at the bottom of the page.
+   And then browse to the `/metric` endpoint on port `9187` for the `cht-watchdog-extra_sql_exporter-1` container IP (eg `http://172.30.0.5:9187/metrics`). Verify you see the results of the query you just added. They'll be at the bottom of the page.
 7. In Grafana - navigate to the "Explore". In the "Metric" field, enter the name you used in step #3.
 8. Format the panel as you'd like.  In a tabular format, you may have to hide many of the columns you don't wish to show.
 9. Choose "Add to dashboard" at the top, select "CHT/CHT Admin Extra SQL" and choose "Open dashboard"
