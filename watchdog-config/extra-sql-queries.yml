@@ -97,3 +97,52 @@ days_since_successful_purge:
         usage: "LABEL"
     - cht_instance:
         usage: "LABEL"
+
+#
+#This next one has an error that I need to resolve:
+#
+#  An error has occurred while serving metrics:
+#
+#  8 error(s) occurred:
+#  * collected metric "form_completions_60_days_complete_percentage" { label:{name:"cht_instance" value:"brac-ug.app.medicmobile.org"} label:{name:"complete_count" value:"2"} label:{name:"incomplete_count" value:"0"} label:{name:"partner_name" value:"brac-ug"} label:{name:"server" value:"172.17.0.1:5432"} gauge:{value:1}} was collected before with the same name and label values
+#  * collected metric "form_completions_60_days_complete_percentage" { label:{name:"cht_instance" value:"cmmb-kenya.app.medicmobile.org"} label:{name:"complete_count" value:"1"} label:{name:"incomplete_count" value:"0"} label:{name:"partner_name" value:"cmmb-kenya-app"} label:{name:"server" value:"172.17.0.1:5432"} gauge:{value:1}} was collected before with the same name and label values
+#  * collected metric "form_completions_60_days_complete_percentage" { label:{name:"cht_instance" value:"cmmb-kenya.app.medicmobile.org"} label:{name:"complete_count" value:"1"} label:{name:"incomplete_count" value:"0"} label:{name:"partner_name" value:"cmmb-kenya-app"} label:{name:"server" value:"172.17.0.1:5432"} gauge:{value:1}} was collected before with the same name and label values
+#  * collected metric "form_completions_60_days_complete_percentage" { label:{name:"cht_instance" value:"muso-cdi.app.medicmobile.org"} label:{name:"complete_count" value:"78"} label:{name:"incomplete_count" value:"7"} label:{name:"partner_name" value:"muso_cdi_app"} label:{name:"server" value:"172.17.0.1:5432"} gauge:{value:0.9312156593406593}} was collected before with the same name and label values
+#  * collected metric "form_completions_60_days_complete_percentage" { label:{name:"cht_instance" value:"muso-cdi.app.medicmobile.org"} label:{name:"complete_count" value:"4"} label:{name:"incomplete_count" value:"0"} label:{name:"partner_name" value:"muso_cdi_app"} label:{name:"server" value:"172.17.0.1:5432"} gauge:{value:1}} was collected before with the same name and label values
+#  * collected metric "form_completions_60_days_complete_percentage" { label:{name:"cht_instance" value:"muso-mali.app.medicmobile.org"} label:{name:"complete_count" value:"21"} label:{name:"incomplete_count" value:"2"} label:{name:"partner_name" value:"musoapp"} label:{name:"server" value:"172.17.0.1:5432"} gauge:{value:0.9285714285714286}} was collected before with the same name and label values
+#  * collected metric "form_completions_60_days_complete_percentage" { label:{name:"cht_instance" value:"muso-mali.app.medicmobile.org"} label:{name:"complete_count" value:"1"} label:{name:"incomplete_count" value:"1"} label:{name:"partner_name" value:"musoapp"} label:{name:"server" value:"172.17.0.1:5432"} gauge:{value:0.5}} was collected before with the same name and label values
+#  * collected metric "form_completions_60_days_complete_percentage" { label:{name:"cht_instance" value:"pih-malawi.app.medicmobile.org"} label:{name:"complete_count" value:"3"} label:{name:"incomplete_count" value:"0"} label:{name:"partner_name" value:"pih_malawi"} label:{name:"server" value:"172.17.0.1:5432"} gauge:{value:1}} was collected before with the same name and label values
+
+
+form_completions_60_days:
+  query: |
+    SELECT
+      form_name AS form_name,
+      sum(load_count - complete_count) AS incomplete_count,
+      sum(complete_count) AS complete_count,
+      AVG(complete_count/load_count::float) AS complete_percentage,
+      forms.partner_name,
+      replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM
+      public.app_monitoring_form_completions as forms
+    LEFT JOIN
+      monitoring_urls ON forms.partner_name=monitoring_urls.partner_name
+    WHERE
+      load_count>0
+    GROUP BY
+      form_name,
+      forms.partner_name,
+      cht_instance
+    ORDER BY
+      cht_instance,incomplete_count DESC
+  metrics:
+    - incomplete_count:
+        usage: "LABEL"
+    - complete_count:
+        usage: "LABEL"
+    - complete_percentage:
+        usage: "COUNTER"
+    - partner_name:
+        usage: "LABEL"
+    - cht_instance:
+        usage: "LABEL"
