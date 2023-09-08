@@ -39,6 +39,75 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "10.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "days_since_successful_purge_days{cht_instance=\"$cht_instance\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Days since successful purge",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -63,9 +132,9 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 5,
         "w": 5,
-        "x": 0,
+        "x": 6,
         "y": 0
       },
       "id": 2,
@@ -223,9 +292,9 @@
         ]
       },
       "gridPos": {
-        "h": 7,
-        "w": 19,
-        "x": 5,
+        "h": 5,
+        "w": 13,
+        "x": 11,
         "y": 0
       },
       "id": 3,
@@ -398,7 +467,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 7
+        "y": 5
       },
       "id": 1,
       "options": {
@@ -449,7 +518,7 @@
     "list": [
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "muso-mali.app.medicmobile.org",
           "value": "muso-mali.app.medicmobile.org"
         },
