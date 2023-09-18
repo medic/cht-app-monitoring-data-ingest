@@ -464,6 +464,10 @@
               {
                 "id": "displayName",
                 "value": "Complete %"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
               }
             ]
           },
@@ -538,6 +542,13 @@
                 "value": 97
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #B"
+            },
+            "properties": []
           }
         ]
       },
@@ -835,8 +846,8 @@
       {
         "current": {
           "selected": true,
-          "text": "disc-mali.ml",
-          "value": "disc-mali.ml"
+          "text": "muso-mali.app.medicmobile.org",
+          "value": "muso-mali.app.medicmobile.org"
         },
         "datasource": {
           "type": "prometheus",
