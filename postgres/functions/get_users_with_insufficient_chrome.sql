@@ -7,7 +7,7 @@ DECLARE partners CURSOR IS (
     partner_name AS name,
     port
   FROM impactconfig
-  WHERE close_date IS NULL  
+  WHERE status = 'Active'  
 );
 DECLARE creds record;
 BEGIN 
