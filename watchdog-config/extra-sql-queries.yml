@@ -1,4 +1,4 @@
-replication_failure_reasons:
+dwh_replication_failure_reasons:
   query: |
     SELECT
       metric as failure_type,
@@ -25,7 +25,7 @@ replication_failure_reasons:
     - count:
         usage: "GAUGE"
 
-users_past_replication_limit:
+dwh_users_past_replication_limit:
   query: |
     SELECT
       max("users past replication_limit") AS user_count,
@@ -48,7 +48,7 @@ users_past_replication_limit:
     - cht_instance:
         usage: "LABEL"
 
-users_with_insificient_disk:
+dwh_users_with_insificient_disk:
   query: |
     SELECT
       user_name AS user_name,
@@ -76,7 +76,7 @@ users_with_insificient_disk:
     - cht_instance:
         usage: "LABEL"
 
-last_successful_purge:
+dwh_last_successful_purge:
   query: |
     SELECT 
       purge.partner_name,
@@ -97,7 +97,7 @@ last_successful_purge:
     - cht_instance:
         usage: "LABEL"
 
-form_completions_60_days:
+dwh_form_completions_60_days:
   query: |
     SELECT
       form_name AS form_name,
