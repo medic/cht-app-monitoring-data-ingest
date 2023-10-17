@@ -74,7 +74,7 @@ dwh_last_successful_purge:
     - cht_instance:
         usage: "LABEL"
 
-dwh_form_completions_60_days:
+dwh_form_completions_last_60_days:
   query: |
     SELECT
       form_name AS form_name,
