@@ -76,12 +76,12 @@ users_with_insificient_disk:
     - cht_instance:
         usage: "LABEL"
 
-days_since_successful_purge:
+last_successful_purge:
   query: |
     SELECT 
       purge.partner_name,
       replace(monitoring_urls.url, 'https://', '') as cht_instance,
-      now()::date - MAX(completion_date) FILTER(WHERE error IS NULL)::date AS "days"
+      extract(epoch from (now() - MAX(completion_date) FILTER(WHERE error IS NULL))) AS "seconds"
     FROM
       public.app_monitoring_purge_logs as purge
     LEFT JOIN
@@ -90,7 +90,7 @@ days_since_successful_purge:
       purge.partner_name,
       cht_instance
   metrics:
-    - days:
+    - seconds:
         usage: "COUNTER"
     - partner_name:
         usage: "LABEL"
