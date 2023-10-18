@@ -61,6 +61,12 @@
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
       "id": 4,
       "options": {
         "colorMode": "value",
@@ -86,9 +92,9 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "days_since_successful_purge_days{cht_instance=\"$cht_instance\"}",
+          "expr": "dwh_last_successful_purge_seconds{cht_instance=\"$cht_instance\"}",
           "fullMetaSearch": false,
-          "includeNullMetadata": true,
+          "includeNullMetadata": false,
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
@@ -97,6 +103,59 @@
         }
       ],
       "title": "Days since successful purge",
+      "transformations": [
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "dhw_purge_minutes",
+            "binary": {
+              "left": "{__name__=\"dwh_last_successful_purge_seconds\", cht_instance=\"muso-mali.app.medicmobile.org\", instance=\"extra_sql_exporter:9187\", job=\"extra-sql\", partner_name=\"musoapp\", server=\"172.17.0.1:5432\"}",
+              "operator": "/",
+              "reducer": "sum",
+              "right": "60"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": true
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "dhw_purge_hours",
+            "binary": {
+              "left": "dhw_purge_minutes",
+              "operator": "/",
+              "reducer": "sum",
+              "right": "60"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": true
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "dhw_purge_days",
+            "binary": {
+              "left": "dhw_purge_hours",
+              "operator": "/",
+              "reducer": "sum",
+              "right": "24"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": true
+          }
+        }
+      ],
       "type": "stat"
     },
     {
@@ -104,84 +163,13 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 5,
-        "x": 6,
-        "y": 0
-      },
-      "id": 2,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "10.1.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "users_past_replication_limit_user_count{cht_instance=\"$cht_instance\"}",
-          "format": "time_series",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": true,
-          "legendFormat": "__auto",
-          "range": false,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Users past replication limit",
-      "transformations": [],
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
           "custom": {
-            "align": "left",
+            "align": "auto",
             "cellOptions": {
               "type": "auto"
             },
@@ -206,43 +194,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "server"
-            },
-            "properties": [
-              {
-                "id": "custom.hidden",
-                "value": true
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "partner_name"
-            },
-            "properties": [
-              {
-                "id": "custom.hidden",
-                "value": true
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "job"
-            },
-            "properties": [
-              {
-                "id": "custom.hidden",
-                "value": true
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "cht_instance"
+              "options": "Time"
             },
             "properties": [
               {
@@ -266,6 +218,30 @@
           {
             "matcher": {
               "id": "byName",
+              "options": "cht_instance"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "job"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
               "options": "instance"
             },
             "properties": [
@@ -278,7 +254,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Time"
+              "options": "partner_name"
             },
             "properties": [
               {
@@ -286,16 +262,52 @@
                 "value": true
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "server"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "user_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Username"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Free MB"
+              }
+            ]
           }
         ]
       },
       "gridPos": {
         "h": 5,
-        "w": 13,
+        "w": 12,
         "x": 11,
         "y": 0
       },
-      "id": 3,
+      "id": 6,
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -306,7 +318,8 @@
           ],
           "show": false
         },
-        "showHeader": true
+        "showHeader": true,
+        "sortBy": []
       },
       "pluginVersion": "10.1.1",
       "targets": [
@@ -318,7 +331,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "users_with_insificient_disk_free_storage_mb{cht_instance=\"$cht_instance\"}",
+          "expr": "dwh_users_with_insificient_disk_free_storage_mb{cht_instance=\"$cht_instance\"}",
           "format": "table",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -542,13 +555,6 @@
                 "value": 97
               }
             ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #B"
-            },
-            "properties": []
           }
         ]
       },
@@ -588,7 +594,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "form_completions_60_days_complete_count{cht_instance=\"$cht_instance\"}",
+          "expr": "dwh_form_completions_last_60_days_complete_count{cht_instance=\"$cht_instance\"}",
           "format": "table",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -606,7 +612,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "form_completions_60_days_complete_percentage{cht_instance=\"$cht_instance\"}",
+          "expr": "dwh_form_completions_last_60_days_incomplete_count{cht_instance=\"$cht_instance\"} / dwh_form_completions_last_60_days_complete_count{cht_instance=\"$cht_instance\"}",
           "format": "table",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -625,7 +631,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "form_completions_60_days_incomplete_count{cht_instance=\"$cht_instance\"}",
+          "expr": "dwh_form_completions_last_60_days_incomplete_count{cht_instance=\"$cht_instance\"}",
           "format": "table",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -822,15 +828,19 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "replication_failure_reasons_count{cht_instance=\"$cht_instance\"}",
+          "expr": "dwh_replication_failure_reasons_count{cht_instance=\"$cht_instance\"}",
           "format": "table",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "instant": true,
           "key": "Q-e238fdbd-aed6-4215-a3e8-c611c6586c64-0",
           "legendFormat": "",
           "range": false,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "Replication failures",
@@ -845,9 +855,9 @@
     "list": [
       {
         "current": {
-          "selected": true,
-          "text": "muso-mali.app.medicmobile.org",
-          "value": "muso-mali.app.medicmobile.org"
+          "selected": false,
+          "text": "disc-mali.ml",
+          "value": "disc-mali.ml"
         },
         "datasource": {
           "type": "prometheus",
@@ -880,6 +890,6 @@
   "timezone": "",
   "title": "CHT Admin Extra SQL",
   "uid": "a71db640-cc40-452c-aa92-222a9b49d43b",
-  "version": 6,
+  "version": 18,
   "weekStart": ""
 }
