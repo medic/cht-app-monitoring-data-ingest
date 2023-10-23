@@ -580,7 +580,7 @@
         "sortBy": [
           {
             "desc": true,
-            "displayName": "Documents"
+            "displayName": "Incomplete"
           }
         ]
       },
@@ -612,7 +612,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "dwh_form_completions_last_60_days_incomplete_count{cht_instance=\"$cht_instance\"} / dwh_form_completions_last_60_days_complete_count{cht_instance=\"$cht_instance\"}",
+          "expr": "dwh_form_completions_last_60_days_complete_percentage{cht_instance=\"$cht_instance\"}",
           "format": "table",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -855,7 +855,7 @@
     "list": [
       {
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "disc-mali.ml",
           "value": "disc-mali.ml"
         },
@@ -890,6 +890,6 @@
   "timezone": "",
   "title": "CHT Admin Extra SQL",
   "uid": "a71db640-cc40-452c-aa92-222a9b49d43b",
-  "version": 18,
+  "version": 20,
   "weekStart": ""
 }

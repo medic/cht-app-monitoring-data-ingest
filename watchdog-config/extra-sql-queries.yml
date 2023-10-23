@@ -80,6 +80,7 @@ dwh_form_completions_last_60_days:
       form_name AS form_name,
       sum(load_count - complete_count) AS incomplete_count,
       sum(complete_count) AS complete_count,
+      AVG(complete_count/load_count::float) AS complete_percentage,
       forms.partner_name,
       replace(monitoring_urls.url, 'https://', '') as cht_instance
     FROM
@@ -100,6 +101,8 @@ dwh_form_completions_last_60_days:
     - incomplete_count:
         usage: "COUNTER"
     - complete_count:
+        usage: "COUNTER"
+    - complete_percentage:
         usage: "COUNTER"
     - partner_name:
         usage: "LABEL"
