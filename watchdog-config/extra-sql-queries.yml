@@ -108,3 +108,31 @@ dwh_form_completions_last_60_days:
         usage: "LABEL"
     - cht_instance:
         usage: "LABEL"
+
+dwh_feedback_docs_by_type:
+  query: |
+    SELECT 
+      app_monitoring_feedback_docs.partner_name,
+      source,
+      count(source) AS count,
+      replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM 
+      public.app_monitoring_feedback_docs
+    LEFT JOIN
+      monitoring_urls ON app_monitoring_feedback_docs.partner_name=monitoring_urls.partner_name
+    WHERE 
+      reported > CURRENT_DATE - 1 AND
+      reported < CURRENT_DATE + 1
+    GROUP BY 
+      source,
+      app_monitoring_feedback_docs.partner_name,
+      cht_instance
+  metrics:
+    - source:
+        usage: "LABEL"
+    - count:
+        usage: "COUNTER"
+    - partner_name:
+        usage: "LABEL"
+    - cht_instance:
+        usage: "LABEL"
