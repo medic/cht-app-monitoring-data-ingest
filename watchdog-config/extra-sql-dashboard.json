@@ -36,6 +36,222 @@
   "panels": [
     {
       "datasource": {
+        "type": "postgres",
+        "uid": "c4a958e1-3248-41b8-bfca-85426c9f4285"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 5,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.71,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "normal",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 100
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "c4a958e1-3248-41b8-bfca-85426c9f4285"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  DATE_TRUNC('day', period_start) AS __timestamp,\n  sum(replication_denied_count) AS \"Attempts\",\n  sum(replication_error_count) AS \"Errors\"\nFROM\n  public.app_monitoring_replication_by_status\nLEFT JOIN\n\tmonitoring_urls ON app_monitoring_replication_by_status.partner_name=monitoring_urls.partner_name\nWHERE\n  period_start >= CURRENT_DATE - interval '1' month\n  AND period_start < CURRENT_DATE + 1\n  AND replace(monitoring_urls.url, 'https://', '') = '$cht_instance'\nGROUP BY\n  DATE_TRUNC('day', period_start)\nORDER BY\n  \"Attempts\" DESC",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Denied replications",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "c4a958e1-3248-41b8-bfca-85426c9f4285"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 4,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.64,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "normal",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 100
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "c4a958e1-3248-41b8-bfca-85426c9f4285"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  DATE_TRUNC('day', period_start) AS __timestamp,\n  sum(replication_failure_count) AS \"Failure\",\n  sum(replication_success_count) AS \"Success\"\nFROM\n  public.app_monitoring_replication_by_status\n  LEFT JOIN monitoring_urls ON app_monitoring_replication_by_status.partner_name = monitoring_urls.partner_name\nWHERE\n  replace(monitoring_urls.url, 'https://', '') = '$cht_instance'\nGROUP BY\n  DATE_TRUNC('day', period_start)",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Replication Health",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
@@ -66,7 +282,7 @@
         "h": 7,
         "w": 5,
         "x": 0,
-        "y": 0
+        "y": 16
       },
       "id": 2,
       "options": {
@@ -81,7 +297,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "10.1.1",
+      "pluginVersion": "9.5.3",
       "targets": [
         {
           "datasource": {
@@ -226,7 +442,7 @@
         "h": 7,
         "w": 19,
         "x": 5,
-        "y": 0
+        "y": 16
       },
       "id": 3,
       "options": {
@@ -241,7 +457,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "10.1.1",
+      "pluginVersion": "9.5.3",
       "targets": [
         {
           "datasource": {
@@ -398,7 +614,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 7
+        "y": 23
       },
       "id": 1,
       "options": {
@@ -419,7 +635,7 @@
           }
         ]
       },
-      "pluginVersion": "10.1.1",
+      "pluginVersion": "9.5.3",
       "targets": [
         {
           "datasource": {
@@ -450,8 +666,8 @@
       {
         "current": {
           "selected": true,
-          "text": "muso-mali.app.medicmobile.org",
-          "value": "muso-mali.app.medicmobile.org"
+          "text": "disc-mali.ml",
+          "value": "disc-mali.ml"
         },
         "datasource": {
           "type": "prometheus",
@@ -477,13 +693,13 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-30d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "CHT Admin Extra SQL",
   "uid": "a71db640-cc40-452c-aa92-222a9b49d43b",
-  "version": 3,
+  "version": 2,
   "weekStart": ""
 }
