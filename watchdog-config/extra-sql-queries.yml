@@ -1,4 +1,4 @@
-replication_failure_reasons:
+dwh_replication_failure_reasons:
   query: |
     SELECT
       metric as failure_type,
@@ -25,30 +25,7 @@ replication_failure_reasons:
     - count:
         usage: "GAUGE"
 
-users_past_replication_limit:
-  query: |
-    SELECT
-      max("users past replication_limit") AS user_count,
-      users.partner_name,
-      replace(monitoring_urls.url, 'https://', '') as cht_instance
-    FROM
-      public.app_monitoring_users_replication_limit as users
-    LEFT JOIN
-      monitoring_urls ON users.partner_name=monitoring_urls.partner_name
-    GROUP BY
-      users.partner_name,
-      cht_instance
-    ORDER BY
-      users.partner_name
-  metrics:
-    - user_count:
-        usage: "GAUGE"
-    - partner_name:
-        usage: "LABEL"
-    - cht_instance:
-        usage: "LABEL"
-
-users_with_insificient_disk:
+dwh_users_with_insificient_disk:
   query: |
     SELECT
       user_name AS user_name,
@@ -71,6 +48,62 @@ users_with_insificient_disk:
         usage: "GAUGE"
     - user_name:
         usage: "LABEL"
+    - partner_name:
+        usage: "LABEL"
+    - cht_instance:
+        usage: "LABEL"
+
+dwh_last_successful_purge:
+  query: |
+    SELECT 
+      purge.partner_name,
+      replace(monitoring_urls.url, 'https://', '') as cht_instance,
+      extract(epoch from (now() - MAX(completion_date) FILTER(WHERE error IS NULL))) AS "seconds"
+    FROM
+      public.app_monitoring_purge_logs as purge
+    LEFT JOIN
+      monitoring_urls ON purge.partner_name=monitoring_urls.partner_name
+    GROUP BY
+      purge.partner_name,
+      cht_instance
+  metrics:
+    - seconds:
+        usage: "COUNTER"
+    - partner_name:
+        usage: "LABEL"
+    - cht_instance:
+        usage: "LABEL"
+
+dwh_form_completions_last_60_days:
+  query: |
+    SELECT
+      form_name AS form_name,
+      sum(load_count - complete_count) AS incomplete_count,
+      sum(complete_count) AS complete_count,
+      AVG(complete_count/load_count::float) AS complete_percentage,
+      forms.partner_name,
+      replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM
+      public.app_monitoring_form_completions as forms
+    LEFT JOIN
+      monitoring_urls ON forms.partner_name=monitoring_urls.partner_name
+    WHERE
+      load_count>0
+    GROUP BY
+      form_name,
+      forms.partner_name,
+      cht_instance
+    ORDER BY
+      cht_instance,incomplete_count DESC
+  metrics:
+    - form_name:
+        usage: "LABEL"
+    - incomplete_count:
+        usage: "COUNTER"
+    - complete_count:
+        usage: "COUNTER"
+    - complete_percentage:
+        usage: "COUNTER"
     - partner_name:
         usage: "LABEL"
     - cht_instance:

@@ -39,7 +39,6 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -63,13 +62,16 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 5,
+        "h": 3,
+        "w": 4,
         "x": 0,
         "y": 0
       },
-      "id": 2,
+      "id": 4,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -78,8 +80,7 @@
           "fields": "",
           "values": false
         },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "textMode": "auto"
       },
       "pluginVersion": "10.1.1",
       "targets": [
@@ -91,10 +92,9 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "users_past_replication_limit_user_count{cht_instance=\"$cht_instance\"}",
-          "format": "time_series",
+          "expr": "dwh_last_successful_purge_seconds{cht_instance=\"$cht_instance\"}",
           "fullMetaSearch": false,
-          "includeNullMetadata": true,
+          "includeNullMetadata": false,
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
@@ -102,9 +102,61 @@
           "useBackend": false
         }
       ],
-      "title": "Users past replication limit",
-      "transformations": [],
-      "type": "gauge"
+      "title": "Days since successful purge",
+      "transformations": [
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "dhw_purge_minutes",
+            "binary": {
+              "left": "{__name__=\"dwh_last_successful_purge_seconds\", cht_instance=\"muso-mali.app.medicmobile.org\", instance=\"extra_sql_exporter:9187\", job=\"extra-sql\", partner_name=\"musoapp\", server=\"172.17.0.1:5432\"}",
+              "operator": "/",
+              "reducer": "sum",
+              "right": "60"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": true
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "dhw_purge_hours",
+            "binary": {
+              "left": "dhw_purge_minutes",
+              "operator": "/",
+              "reducer": "sum",
+              "right": "60"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": true
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "dhw_purge_days",
+            "binary": {
+              "left": "dhw_purge_hours",
+              "operator": "/",
+              "reducer": "sum",
+              "right": "24"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": true
+          }
+        }
+      ],
+      "type": "stat"
     },
     {
       "datasource": {
@@ -113,8 +165,11 @@
       },
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
           "custom": {
-            "align": "left",
+            "align": "auto",
             "cellOptions": {
               "type": "auto"
             },
@@ -139,43 +194,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "server"
-            },
-            "properties": [
-              {
-                "id": "custom.hidden",
-                "value": true
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "partner_name"
-            },
-            "properties": [
-              {
-                "id": "custom.hidden",
-                "value": true
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "job"
-            },
-            "properties": [
-              {
-                "id": "custom.hidden",
-                "value": true
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "cht_instance"
+              "options": "Time"
             },
             "properties": [
               {
@@ -199,7 +218,164 @@
           {
             "matcher": {
               "id": "byName",
+              "options": "cht_instance"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "job"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
               "options": "instance"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "partner_name"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "server"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "user_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Username"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Free MB"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 11,
+        "y": 0
+      },
+      "id": 6,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "10.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "dwh_users_with_insificient_disk_free_storage_mb{cht_instance=\"$cht_instance\"}",
+          "format": "table",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Users with Insificient Disk",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "__name__"
             },
             "properties": [
               {
@@ -219,16 +395,176 @@
                 "value": true
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cht_instance"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "instance"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "job"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "partner_name"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "server"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #A"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Documents"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #B"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Complete %"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #C"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Incomplete"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "form_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Form"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Form"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 309
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Documents"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 117
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Complete %"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 98
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Incomplete"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 97
+              }
+            ]
           }
         ]
       },
       "gridPos": {
-        "h": 7,
-        "w": 19,
-        "x": 5,
-        "y": 0
+        "h": 13,
+        "w": 11,
+        "x": 0,
+        "y": 3
       },
-      "id": 3,
+      "id": 5,
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -239,7 +575,14 @@
           ],
           "show": false
         },
-        "showHeader": true
+        "frameIndex": 2,
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Incomplete"
+          }
+        ]
       },
       "pluginVersion": "10.1.1",
       "targets": [
@@ -251,18 +594,65 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "users_with_insificient_disk_free_storage_mb{cht_instance=\"$cht_instance\"}",
+          "expr": "dwh_form_completions_last_60_days_complete_count{cht_instance=\"$cht_instance\"}",
           "format": "table",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": true,
-          "legendFormat": "__auto",
+          "interval": "",
           "range": false,
           "refId": "A",
           "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "dwh_form_completions_last_60_days_complete_percentage{cht_instance=\"$cht_instance\"}",
+          "format": "table",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "interval": "",
+          "key": "Q-bd175420-5a82-4b86-8451-823b56309207-1",
+          "range": false,
+          "refId": "B",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "dwh_form_completions_last_60_days_incomplete_count{cht_instance=\"$cht_instance\"}",
+          "format": "table",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "interval": "",
+          "key": "Q-1d5ba78f-1974-422a-822d-a5cca799481e-2",
+          "range": false,
+          "refId": "C",
+          "useBackend": false
         }
       ],
-      "title": "Users with Insificient Disk",
+      "title": "60 Day Form Completion",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "form_name",
+            "mode": "inner"
+          }
+        }
+      ],
       "type": "table"
     },
     {
@@ -391,14 +781,26 @@
                 "value": true
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "failure_type"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 605
+              }
+            ]
           }
         ]
       },
       "gridPos": {
-        "h": 7,
-        "w": 24,
-        "x": 0,
-        "y": 7
+        "h": 11,
+        "w": 12,
+        "x": 11,
+        "y": 5
       },
       "id": 1,
       "options": {
@@ -411,7 +813,7 @@
           ],
           "show": false
         },
-        "showHeader": false,
+        "showHeader": true,
         "sortBy": [
           {
             "desc": true,
@@ -426,22 +828,26 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "replication_failure_reasons_count{cht_instance=\"$cht_instance\"}",
+          "expr": "dwh_replication_failure_reasons_count{cht_instance=\"$cht_instance\"}",
           "format": "table",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "instant": true,
           "key": "Q-e238fdbd-aed6-4215-a3e8-c611c6586c64-0",
           "legendFormat": "",
           "range": false,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "Replication failures",
       "type": "table"
     }
   ],
-  "refresh": "5s",
+  "refresh": "",
   "schemaVersion": 38,
   "style": "dark",
   "tags": [],
@@ -450,8 +856,8 @@
       {
         "current": {
           "selected": true,
-          "text": "muso-mali.app.medicmobile.org",
-          "value": "muso-mali.app.medicmobile.org"
+          "text": "disc-mali.ml",
+          "value": "disc-mali.ml"
         },
         "datasource": {
           "type": "prometheus",
@@ -477,13 +883,13 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-30m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "CHT Admin Extra SQL",
   "uid": "a71db640-cc40-452c-aa92-222a9b49d43b",
-  "version": 3,
+  "version": 20,
   "weekStart": ""
 }
