@@ -48,7 +48,7 @@ users_past_replication_limit:
     - cht_instance:
         usage: "LABEL"
 
-users_with_insificient_disk:
+users_with_insufficient_disk:
   query: |
     SELECT
       user_name AS user_name,
@@ -75,3 +75,29 @@ users_with_insificient_disk:
         usage: "LABEL"
     - cht_instance:
         usage: "LABEL"
+
+feedback_docs:
+  query: |
+    SELECT
+        feedback.partner_name,
+        source,
+        count(*) AS source_count,
+        replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM app_monitoring_feedback_docs AS feedback
+    LEFT JOIN
+        monitoring_urls ON feedback.partner_name=monitoring_urls.partner_name
+    GROUP BY
+        feedback.partner_name,
+        source,
+        cht_instance
+  metrics:
+    - partner_name:
+        usage: "LABEL"
+    - source:
+        usage: "LABEL"
+    - source_count:
+        usage: "GAUGE"
+    - cht_instance:
+        usage: "LABEL"
+    # - detail:
+    #     usage: "LABEL"
