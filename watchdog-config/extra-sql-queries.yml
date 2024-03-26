@@ -104,7 +104,7 @@ manual_feedback_docs:
   query: |
     SELECT
         feedback.partner_name,
-        reported,
+        reported::varchar(255),
         detail,
         count(*) AS detail_count,
         replace(monitoring_urls.url, 'https://', '') as cht_instance
@@ -135,7 +135,7 @@ automatic_feedback_docs:
   query: |
     SELECT
         feedback.partner_name,
-        reported,
+        reported::varchar(255),
         detail,
         count(*) AS detail_count,
         replace(monitoring_urls.url, 'https://', '') as cht_instance
