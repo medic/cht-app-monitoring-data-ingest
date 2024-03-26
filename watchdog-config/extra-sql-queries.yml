@@ -99,5 +99,64 @@ feedback_docs:
         usage: "GAUGE"
     - cht_instance:
         usage: "LABEL"
-    # - detail:
-    #     usage: "LABEL"
+
+manual_feedback_docs:
+  query: |
+    SELECT
+        feedback.partner_name,
+        reported,
+        detail,
+        count(*) AS detail_count,
+        replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM app_monitoring_feedback_docs AS feedback
+    LEFT JOIN
+        monitoring_urls ON feedback.partner_name=monitoring_urls.partner_name
+    WHERE source = 'manual'
+    GROUP BY
+        feedback.partner_name,
+        reported,
+        source,
+        detail,
+        cht_instance
+  metrics:
+    - partner_name:
+        usage: "LABEL"
+    - reported:
+        usage: "LABEL"
+    - detail:
+        usage: "LABEL"
+    - detail_count:
+        usage: "GAUGE"
+    - cht_instance:
+        usage: "LABEL"
+
+
+automatic_feedback_docs:
+  query: |
+    SELECT
+        feedback.partner_name,
+        reported,
+        detail,
+        count(*) AS detail_count,
+        replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM app_monitoring_feedback_docs AS feedback
+    LEFT JOIN
+        monitoring_urls ON feedback.partner_name=monitoring_urls.partner_name
+    WHERE source = 'automatic'
+    GROUP BY
+        feedback.partner_name,
+        reported,
+        source,
+        detail,
+        cht_instance
+  metrics:
+    - partner_name:
+        usage: "LABEL"
+    - reported:
+        usage: "LABEL"
+    - detail:
+        usage: "LABEL"
+    - detail_count:
+        usage: "GAUGE"
+    - cht_instance:
+        usage: "LABEL"

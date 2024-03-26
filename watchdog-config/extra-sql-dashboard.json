@@ -42,17 +42,170 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 6,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.2.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "automatic_feedback_docs_detail_count{cht_instance=\"$cht_instance\"}",
+          "format": "table",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Automatic feedback docs",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 5,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.2.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "manual_feedback_docs_detail_count{cht_instance=\"$cht_instance\"}",
+          "format": "table",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Manual feedback docs",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
             "mode": "palette-classic"
           },
           "custom": {
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "",
+            "axisLabel": "Number of documents",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -91,13 +244,38 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "{__name__=\"feedback_docs_source_count\", cht_instance=\"pih-malawi.app.medicmobile.org\", instance=\"extra_sql_exporter:9187\", job=\"extra-sql\", partner_name=\"pih_malawi\", server=\"172.17.0.1:5432\", source=\"manual\"}"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 0
+        "y": 16
       },
       "id": 4,
       "options": {
@@ -120,17 +298,36 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "count(feedback_docs_source_count{cht_instance=\"$cht_instance\"})",
+          "exemplar": false,
+          "expr": "feedback_docs_source_count{cht_instance=\"$cht_instance\", source=\"manual\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": true,
+          "interval": "",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A",
           "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "feedback_docs_source_count{cht_instance=\"$cht_instance\", source=\"automatic\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
         }
       ],
-      "title": "New Panel",
+      "title": "Feedback docs by type",
       "type": "timeseries"
     },
     {
@@ -165,7 +362,7 @@
         "h": 7,
         "w": 5,
         "x": 0,
-        "y": 8
+        "y": 24
       },
       "id": 2,
       "options": {
@@ -327,7 +524,7 @@
         "h": 7,
         "w": 19,
         "x": 5,
-        "y": 8
+        "y": 24
       },
       "id": 3,
       "options": {
@@ -499,7 +696,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 31
       },
       "id": 1,
       "options": {
@@ -549,7 +746,7 @@
     "list": [
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "pih-malawi.app.medicmobile.org",
           "value": "pih-malawi.app.medicmobile.org"
         },
@@ -584,6 +781,6 @@
   "timezone": "",
   "title": "CHT Admin Extra SQL",
   "uid": "a71db640-cc40-452c-aa92-222a9b49d43b",
-  "version": 1,
+  "version": 3,
   "weekStart": ""
 }
