@@ -168,6 +168,7 @@ replication_by_status:
         replication_success_count,
         replication_failure_count,
         replication_denied_count,
+        replication_error_count,
         replace(monitoring_urls.url, 'https://', '') as cht_instance
     FROM app_monitoring_replication_by_status AS status
     LEFT JOIN
@@ -183,5 +184,88 @@ replication_by_status:
         usage: "GAUGE"
     - replication_denied_count:
         usage: "GAUGE"
+    - replication_error_count:
+        usage: "GAUGE"
+    - cht_instance:
+        usage: "LABEL"
+
+sms_error_and_users_docs_replication:
+  query: |
+    SELECT
+        sms.partner_name,
+        reported::varchar(255),
+        due,
+        muted,
+        failed,
+        delivered,
+        scheduled,
+        delta_docs,
+        replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM app_monitoring_sms_error_and_users_docs_replication AS sms
+    LEFT JOIN
+        monitoring_urls ON sms.partner_name=monitoring_urls.partner_name
+  metrics:
+    - partner_name:
+        usage: "LABEL"
+    - reported:
+        usage: "LABEL"
+    - due:
+        usage: "GAUGE"
+    - muted:
+        usage: "GAUGE"
+    - failed:
+        usage: "GAUGE"
+    - delivered:
+        usage: "GAUGE"
+    - scheduled:
+        usage: "GAUGE"
+    - delta_docs:
+        usage: "GAUGE"
+    - cht_instance:
+        usage: "LABEL"
+
+initial_replications:
+  query: |
+    SELECT
+        initial.partner_name,
+        date::varchar(255),
+        count_initial_replications,
+        replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM app_monitoring_initial_replications AS initial
+    LEFT JOIN
+        monitoring_urls ON initial.partner_name=monitoring_urls.partner_name
+  metrics:
+    - partner_name:
+        usage: "LABEL"
+    - date:
+        usage: "LABEL"
+    - count_initial_replications:
+        usage: "GAUGE"
+    - cht_instance:
+        usage: "LABEL"
+
+chw_engagement:
+  query: |
+    SELECT
+        chw.partner_name,
+        last_sync::varchar(255),
+        days_since_last_sync,
+        chw_username,
+        chw_id,
+        replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM app_monitoring_chw_engagement AS chw
+    LEFT JOIN
+        monitoring_urls ON chw.partner_name=monitoring_urls.partner_name
+  metrics:
+    - partner_name:
+        usage: "LABEL"
+    - last_sync:
+        usage: "LABEL"
+    - days_since_last_sync:
+        usage: "GAUGE"
+    - chw_username:
+        usage: "LABEL"
+    - chw_id:
+        usage: "LABEL"
     - cht_instance:
         usage: "LABEL"
