@@ -223,7 +223,7 @@ sms_error_and_users_docs_replication:
         failed,
         delivered,
         scheduled,
-        delta_docs,
+        delta_of_doc AS delta_docs,
         replace(monitoring_urls.url, 'https://', '') as cht_instance
     FROM app_monitoring_sms_error_and_users_docs_replication AS sms
     LEFT JOIN
@@ -291,5 +291,80 @@ chw_engagement:
         usage: "LABEL"
     - chw_id:
         usage: "LABEL"
+    - cht_instance:
+        usage: "LABEL"
+
+gateway_health:
+  query: |
+    SELECT
+        gw.partner_name,
+        reported::varchar(255),
+        due,
+        delivered,
+        scheduled,
+        gateway_state,
+        last_delivered,
+        replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM app_monitoring_gateway_health AS gw
+    LEFT JOIN
+        monitoring_urls ON gw.partner_name=monitoring_urls.partner_name
+  metrics:
+    - partner_name:
+        usage: "LABEL"
+    - reported:
+        usage: "LABEL"
+    - due:
+        usage: "GAUGE"
+    - delivered:
+        usage: "GAUGE"
+    - scheduled:
+        usage: "GAUGE"
+    - gateway_state:
+        usage: "LABEL"
+    - last_delivered:
+        usage: "LABEL"
+    - cht_instance:
+        usage: "LABEL"
+
+invalid_docs:
+  query: |
+    SELECT
+        docs.partner_name,
+        day::varchar(255) AS reported,
+        invalid_doc_count,
+        replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM app_monitoring_invalid_docs AS docs
+    LEFT JOIN
+        monitoring_urls ON docs.partner_name=monitoring_urls.partner_name
+  metrics:
+    - partner_name:
+        usage: "LABEL"
+    - reported:
+        usage: "LABEL"
+    - invalid_doc_count:
+        usage: "GAUGE"
+    - cht_instance:
+        usage: "LABEL"
+
+invalid_doc_errors:
+  query: |
+    SELECT
+        docs.partner_name,
+        day::varchar(255) AS reported,
+        code,
+        count,
+        replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM app_monitoring_invalid_doc_errors AS docs
+    LEFT JOIN
+        monitoring_urls ON docs.partner_name=monitoring_urls.partner_name
+  metrics:
+    - partner_name:
+        usage: "LABEL"
+    - reported:
+        usage: "LABEL"
+    - code:
+        usage: "LABEL"
+    - count:
+        usage: "GAUGE"
     - cht_instance:
         usage: "LABEL"
