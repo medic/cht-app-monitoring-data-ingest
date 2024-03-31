@@ -130,7 +130,6 @@ manual_feedback_docs:
     - cht_instance:
         usage: "LABEL"
 
-
 automatic_feedback_docs:
   query: |
     SELECT
@@ -157,6 +156,32 @@ automatic_feedback_docs:
     - detail:
         usage: "LABEL"
     - detail_count:
+        usage: "GAUGE"
+    - cht_instance:
+        usage: "LABEL"
+
+replication_by_status:
+  query: |
+    SELECT
+        status.partner_name,
+        period_start::varchar(255),
+        replication_success_count,
+        replication_failure_count,
+        replication_denied_count,
+        replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM app_monitoring_replication_by_status AS status
+    LEFT JOIN
+        monitoring_urls ON status.partner_name=monitoring_urls.partner_name
+  metrics:
+    - partner_name:
+        usage: "LABEL"
+    - period_start:
+        usage: "LABEL"
+    - replication_success_count:
+        usage: "GAUGE"
+    - replication_failure_count:
+        usage: "GAUGE"
+    - replication_denied_count:
         usage: "GAUGE"
     - cht_instance:
         usage: "LABEL"
