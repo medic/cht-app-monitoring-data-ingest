@@ -76,6 +76,30 @@ users_with_insufficient_disk:
     - cht_instance:
         usage: "LABEL"
 
+users_with_insufficient_chrome_version:
+  query: |
+    SELECT
+      partner_name,
+      user_name,
+      chrome_version,
+      required_chrome_version,
+      replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM
+      public.app_monitoring_users_with_insufficient_chrome AS chrome
+    LEFT JOIN
+      monitoring_urls ON chrome.partner_name=monitoring_urls.partner_name
+  metrics:
+    - partner_name:
+        usage: "LABEL"
+    - user_name:
+        usage: "LABEL"
+    - chrome_version:
+        usage: "GAUGE"
+    - required_chrome_version:
+        usage: "LABEL"
+    - cht_instance:
+        usage: "LABEL"
+
 feedback_docs:
   query: |
     SELECT
