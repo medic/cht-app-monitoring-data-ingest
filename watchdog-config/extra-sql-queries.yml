@@ -79,7 +79,7 @@ users_with_insufficient_disk:
 users_with_insufficient_chrome_version:
   query: |
     SELECT
-      partner_name,
+      chrome.partner_name,
       user_name,
       chrome_version,
       required_chrome_version,
@@ -213,16 +213,16 @@ replication_by_status:
     - cht_instance:
         usage: "LABEL"
 
-sms_error_and_users_docs_replication:
+sms_users_docs_delta:
   query: |
     SELECT
         sms.partner_name,
         reported::varchar(255),
-        due,
-        muted,
-        failed,
-        delivered,
-        scheduled,
+        # due,
+        # muted,
+        # failed,
+        # delivered,
+        # scheduled,
         delta_of_doc AS delta_docs,
         replace(monitoring_urls.url, 'https://', '') as cht_instance
     FROM app_monitoring_sms_error_and_users_docs_replication AS sms
@@ -233,16 +233,16 @@ sms_error_and_users_docs_replication:
         usage: "LABEL"
     - reported:
         usage: "LABEL"
-    - due:
-        usage: "GAUGE"
-    - muted:
-        usage: "GAUGE"
-    - failed:
-        usage: "GAUGE"
-    - delivered:
-        usage: "GAUGE"
-    - scheduled:
-        usage: "GAUGE"
+    # - due:
+    #     usage: "GAUGE"
+    # - muted:
+    #     usage: "GAUGE"
+    # - failed:
+    #     usage: "GAUGE"
+    # - delivered:
+    #     usage: "GAUGE"
+    # - scheduled:
+    #     usage: "GAUGE"
     - delta_docs:
         usage: "GAUGE"
     - cht_instance:
@@ -365,6 +365,96 @@ invalid_doc_errors:
     - code:
         usage: "LABEL"
     - count:
+        usage: "GAUGE"
+    - cht_instance:
+        usage: "LABEL"
+
+tasks_by_state:
+  query: |
+    SELECT
+        tasks.partner_name,
+        day::varchar(255) AS reported,
+        task,
+        draft,
+        ready,
+        cancelled,
+        completed,
+        failed,
+        replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM app_monitoring_tasks_by_state AS tasks
+    LEFT JOIN
+        monitoring_urls ON tasks.partner_name=monitoring_urls.partner_name
+  metrics:
+    - partner_name:
+        usage: "LABEL"
+    - reported:
+        usage: "LABEL"
+    - task:
+        usage: "LABEL"
+    - draft:
+        usage: "GAUGE"
+    - ready:
+        usage: "GAUGE"
+    - cancelled:
+        usage: "GAUGE"
+    - completed:
+        usage: "GAUGE"
+    - failed:
+        usage: "GAUGE"
+    - cht_instance:
+        usage: "LABEL"
+
+tasks_by_user:
+  query: |
+    SELECT
+        tasks.partner_name,
+        chw,
+        task,
+        docs,
+        cancelled,
+        completed,
+        replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM app_monitoring_tasks_by_user AS tasks
+    LEFT JOIN
+        monitoring_urls ON tasks.partner_name=monitoring_urls.partner_name
+  metrics:
+    - partner_name:
+        usage: "LABEL"
+    - chw:
+        usage: "LABEL"
+    - task:
+        usage: "LABEL"
+    - docs:
+        usage: "GAUGE"
+    - cancelled:
+        usage: "GAUGE"
+    - completed:
+        usage: "GAUGE"
+    - cht_instance:
+        usage: "LABEL"
+
+form_completions:
+  query: |
+    SELECT
+        forms.partner_name,
+        username,
+        form_name,
+        load_count,
+        complete_count,
+        replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM app_monitoring_form_completions AS forms
+    LEFT JOIN
+        monitoring_urls ON forms.partner_name=monitoring_urls.partner_name
+  metrics:
+    - partner_name:
+        usage: "LABEL"
+    - username:
+        usage: "LABEL"
+    - form_name:
+        usage: "LABEL"
+    - load_count:
+        usage: "GAUGE"
+    - complete_count:
         usage: "GAUGE"
     - cht_instance:
         usage: "LABEL"
