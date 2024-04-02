@@ -213,16 +213,11 @@ replication_by_status:
     - cht_instance:
         usage: "LABEL"
 
-sms_users_docs_delta:
+replication_activity:
   query: |
     SELECT
         sms.partner_name,
         reported::varchar(255),
-        # due,
-        # muted,
-        # failed,
-        # delivered,
-        # scheduled,
         delta_of_doc AS delta_docs,
         replace(monitoring_urls.url, 'https://', '') as cht_instance
     FROM app_monitoring_sms_error_and_users_docs_replication AS sms
@@ -233,16 +228,6 @@ sms_users_docs_delta:
         usage: "LABEL"
     - reported:
         usage: "LABEL"
-    # - due:
-    #     usage: "GAUGE"
-    # - muted:
-    #     usage: "GAUGE"
-    # - failed:
-    #     usage: "GAUGE"
-    # - delivered:
-    #     usage: "GAUGE"
-    # - scheduled:
-    #     usage: "GAUGE"
     - delta_docs:
         usage: "GAUGE"
     - cht_instance:
@@ -316,9 +301,9 @@ gateway_health:
     - due:
         usage: "GAUGE"
     - delivered:
-        usage: "GAUGE"
+        usage: "LABEL"
     - scheduled:
-        usage: "GAUGE"
+        usage: "LABEL"
     - gateway_state:
         usage: "LABEL"
     - last_delivered:
