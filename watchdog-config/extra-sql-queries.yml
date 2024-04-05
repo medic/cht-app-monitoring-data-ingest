@@ -213,25 +213,25 @@ replication_by_status:
     - cht_instance:
         usage: "LABEL"
 
-replication_activity:
-  query: |
-    SELECT
-        sms.partner_name,
-        reported::varchar(255),
-        delta_of_doc AS delta_docs,
-        replace(monitoring_urls.url, 'https://', '') as cht_instance
-    FROM app_monitoring_sms_error_and_users_docs_replication AS sms
-    LEFT JOIN
-        monitoring_urls ON sms.partner_name=monitoring_urls.partner_name
-  metrics:
-    - partner_name:
-        usage: "LABEL"
-    - reported:
-        usage: "LABEL"
-    - delta_docs:
-        usage: "GAUGE"
-    - cht_instance:
-        usage: "LABEL"
+# replication_activity:
+#   query: |
+#     SELECT
+#         sms.partner_name,
+#         reported::varchar(255),
+#         delta_of_doc AS delta_docs,
+#         replace(monitoring_urls.url, 'https://', '') as cht_instance
+#     FROM app_monitoring_sms_error_and_users_docs_replication AS sms
+#     LEFT JOIN
+#         monitoring_urls ON sms.partner_name=monitoring_urls.partner_name
+#   metrics:
+#     - partner_name:
+#         usage: "LABEL"
+#     - reported:
+#         usage: "LABEL"
+#     - delta_docs:
+#         usage: "GAUGE"
+#     - cht_instance:
+#         usage: "LABEL"
 
 initial_replications:
   query: |
@@ -442,4 +442,27 @@ form_completions:
     - complete_count:
         usage: "GAUGE"
     - cht_instance:
+        usage: "LABEL"
+
+purge_logs:
+  query: |
+    SELECT
+        purge.partner AS partner_name,
+        purge.completion_date,
+        duration_minutes,
+        skipped_contacts,
+        error
+    FROM get_purge_logs() AS purge
+    LEFT JOIN
+        monitoring_urls ON purge.partner_name=monitoring_urls.partner_name
+  metrics:
+    - partner_name:
+        usage: "LABEL"
+    - completion_date:
+        usage: "LABEL"
+    - duration_minutes:
+        usage: "GAUGE"
+    - skipped_contacts:
+        usage: "LABEL"
+    - error:
         usage: "LABEL"
