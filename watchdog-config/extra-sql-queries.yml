@@ -449,6 +449,7 @@ purge_logs:
     SELECT
         purge.partner_name,
         purge.completion_date,
+        (EXTRACT(EPOCH FROM AGE(purge.completion_date))/86400)::INT AS days,
         duration_minutes,
         skipped_contacts,
         error,
@@ -460,6 +461,8 @@ purge_logs:
     - partner_name:
         usage: "LABEL"
     - completion_date:
+        usage: "LABEL"
+    - days:
         usage: "LABEL"
     - duration_minutes:
         usage: "GAUGE"
