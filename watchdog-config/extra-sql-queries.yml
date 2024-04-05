@@ -447,12 +447,13 @@ form_completions:
 purge_logs:
   query: |
     SELECT
-        purge.partner AS partner_name,
+        purge.partner_name,
         purge.completion_date,
         duration_minutes,
         skipped_contacts,
-        error
-    FROM get_purge_logs() AS purge
+        error,
+        replace(monitoring_urls.url, 'https://', '') as cht_instance
+    FROM app_monitoring_purge_logs AS purge
     LEFT JOIN
         monitoring_urls ON purge.partner_name=monitoring_urls.partner_name
   metrics:
@@ -465,4 +466,6 @@ purge_logs:
     - skipped_contacts:
         usage: "LABEL"
     - error:
+        usage: "LABEL"
+    - cht_instance:
         usage: "LABEL"

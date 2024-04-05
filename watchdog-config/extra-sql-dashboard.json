@@ -44,13 +44,6 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -74,18 +67,20 @@
         "x": 0,
         "y": 0
       },
-      "id": 24,
+      "id": 27,
       "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
           ],
-          "show": false
+          "fields": "",
+          "values": false
         },
-        "showHeader": true
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
       },
       "pluginVersion": "10.2.2",
       "targets": [
@@ -96,7 +91,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "last_over_time(form_completions_load_count{cht_instance=\"$cht_instance\"}[$__interval])",
+          "expr": "last_over_time(purge_logs_duration_minutes{cht_instance=\"$cht_instance\"}[$__interval])",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -104,90 +99,95 @@
           "range": true,
           "refId": "A",
           "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "last_over_time(form_completions_complete_count{cht_instance=\"$cht_instance\"}[$__interval])",
-          "fullMetaSearch": false,
-          "hide": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "B",
-          "useBackend": false
         }
       ],
-      "title": "Form completions",
+      "title": "Days since last successful purge",
       "transformations": [
         {
-          "id": "joinByLabels",
+          "id": "labelsToFields",
           "options": {
-            "value": "__name__"
+            "keepLabels": [
+              "completion_date",
+              "error"
+            ]
           }
         },
         {
-          "id": "filterFieldsByName",
-          "options": {
-            "include": {
-              "names": [
-                "form_name",
-                "form_completions_load_count",
-                "form_completions_complete_count"
-              ]
-            }
-          }
+          "id": "merge",
+          "options": {}
         },
         {
-          "id": "groupBy",
+          "id": "filterByValue",
           "options": {
-            "fields": {
-              "form_completions_complete_count": {
-                "aggregations": [
-                  "sum"
-                ],
-                "operation": "aggregate"
-              },
-              "form_completions_load_count": {
-                "aggregations": [
-                  "sum"
-                ],
-                "operation": "aggregate"
-              },
-              "form_name": {
-                "aggregations": [],
-                "operation": "groupby"
+            "filters": [
+              {
+                "config": {
+                  "id": "isNull",
+                  "options": {}
+                },
+                "fieldName": "error"
               }
-            }
+            ],
+            "match": "all",
+            "type": "include"
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "desc": true,
+                "field": "completion_date"
+              }
+            ]
+          }
+        },
+        {
+          "id": "limit",
+          "options": {
+            "limitField": 1
           }
         },
         {
           "id": "calculateField",
           "options": {
-            "alias": "% completion",
+            "alias": "completion_date_ms",
             "binary": {
-              "left": "form_completions_complete_count (sum)",
-              "operator": "/",
-              "right": "form_completions_load_count (sum)"
+              "left": "completion_date",
+              "operator": "*",
+              "right": "1000"
             },
             "mode": "binary",
             "reduce": {
-              "include": [
-                "form_completions_complete_count (sum)",
-                "form_completions_load_count (sum)"
-              ],
-              "reducer": "diff"
+              "reducer": "sum"
             },
-            "replaceFields": false
+            "replaceFields": true
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {}
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "time_difference_ms",
+            "binary": {
+              "left": "Time",
+              "operator": "-",
+              "right": "completion_date_ms"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": true
           }
         }
       ],
-      "type": "table"
+      "type": "gauge"
     },
     {
       "datasource": {
@@ -360,6 +360,306 @@
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 26,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "never",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "xField": "completion_date_ms",
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "last_over_time(purge_logs_duration_minutes{cht_instance=\"$cht_instance\"}[$__interval])",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Purging events",
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "keepLabels": [
+              "__name__",
+              "completion_date",
+              "skipped_contacts",
+              "error"
+            ]
+          }
+        },
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "completion_date_ms",
+            "binary": {
+              "left": "completion_date",
+              "operator": "*",
+              "right": "1000"
+            },
+            "mode": "binary",
+            "reduce": {
+              "include": [
+                "completion_date"
+              ],
+              "reducer": "sum"
+            }
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "time",
+                "targetField": "completion_date_ms"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 24,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.2.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "last_over_time(form_completions_load_count{cht_instance=\"$cht_instance\"}[$__interval])",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "last_over_time(form_completions_complete_count{cht_instance=\"$cht_instance\"}[$__interval])",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
+        }
+      ],
+      "title": "Form completions",
+      "transformations": [
+        {
+          "id": "joinByLabels",
+          "options": {
+            "value": "__name__"
+          }
+        },
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "form_name",
+                "form_completions_load_count",
+                "form_completions_complete_count"
+              ]
+            }
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "form_completions_complete_count": {
+                "aggregations": [
+                  "sum"
+                ],
+                "operation": "aggregate"
+              },
+              "form_completions_load_count": {
+                "aggregations": [
+                  "sum"
+                ],
+                "operation": "aggregate"
+              },
+              "form_name": {
+                "aggregations": [],
+                "operation": "groupby"
+              }
+            }
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "% completion",
+            "binary": {
+              "left": "form_completions_complete_count (sum)",
+              "operator": "/",
+              "right": "form_completions_load_count (sum)"
+            },
+            "mode": "binary",
+            "reduce": {
+              "include": [
+                "form_completions_complete_count (sum)",
+                "form_completions_load_count (sum)"
+              ],
+              "reducer": "diff"
+            },
+            "replaceFields": false
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "Number of documents",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -434,7 +734,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 24
       },
       "id": 4,
       "options": {
@@ -527,7 +827,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 14
+        "y": 30
       },
       "id": 5,
       "options": {
@@ -636,7 +936,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 14
+        "y": 30
       },
       "id": 6,
       "options": {
@@ -710,8 +1010,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -726,7 +1025,7 @@
         "h": 7,
         "w": 5,
         "x": 0,
-        "y": 22
+        "y": 38
       },
       "id": 2,
       "options": {
@@ -790,8 +1089,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -806,7 +1104,7 @@
         "h": 7,
         "w": 8,
         "x": 5,
-        "y": 22
+        "y": 38
       },
       "id": 13,
       "options": {
@@ -862,8 +1160,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -878,7 +1175,7 @@
         "h": 7,
         "w": 11,
         "x": 13,
-        "y": 22
+        "y": 38
       },
       "id": 3,
       "options": {
@@ -977,8 +1274,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -989,7 +1285,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 29
+        "y": 45
       },
       "id": 8,
       "options": {
@@ -1073,8 +1369,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1187,7 +1482,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 29
+        "y": 45
       },
       "id": 1,
       "options": {
@@ -1280,7 +1575,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 38
+        "y": 54
       },
       "id": 18,
       "options": {
@@ -1392,7 +1687,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 38
+        "y": 54
       },
       "id": 9,
       "options": {
@@ -1504,7 +1799,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 45
+        "y": 61
       },
       "id": 7,
       "options": {
@@ -1618,7 +1913,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 45
+        "y": 61
       },
       "id": 11,
       "options": {
@@ -1740,7 +2035,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 53
+        "y": 69
       },
       "id": 10,
       "options": {
@@ -1822,7 +2117,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 53
+        "y": 69
       },
       "id": 15,
       "options": {
@@ -1910,7 +2205,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 61
+        "y": 77
       },
       "id": 12,
       "options": {
@@ -2032,7 +2327,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 69
+        "y": 85
       },
       "id": 14,
       "options": {
@@ -2119,7 +2414,7 @@
         "h": 9,
         "w": 11,
         "x": 0,
-        "y": 77
+        "y": 93
       },
       "id": 16,
       "options": {
@@ -2217,7 +2512,7 @@
         "h": 9,
         "w": 13,
         "x": 11,
-        "y": 77
+        "y": 93
       },
       "id": 17,
       "options": {
@@ -2316,7 +2611,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 86
+        "y": 102
       },
       "id": 20,
       "options": {
@@ -2430,7 +2725,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 86
+        "y": 102
       },
       "id": 19,
       "options": {
@@ -2543,7 +2838,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 94
+        "y": 110
       },
       "id": 21,
       "options": {
@@ -2655,7 +2950,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 94
+        "y": 110
       },
       "id": 22,
       "options": {
@@ -2767,7 +3062,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 102
+        "y": 118
       },
       "id": 23,
       "options": {
@@ -2836,9 +3131,9 @@
     "list": [
       {
         "current": {
-          "selected": false,
-          "text": "pih-malawi.app.medicmobile.org",
-          "value": "pih-malawi.app.medicmobile.org"
+          "selected": true,
+          "text": "muso-mali.app.medicmobile.org",
+          "value": "muso-mali.app.medicmobile.org"
         },
         "datasource": {
           "type": "prometheus",
@@ -2882,6 +3177,6 @@
   "timezone": "",
   "title": "CHT Admin Extra SQL",
   "uid": "a71db640-cc40-452c-aa92-222a9b49d43b",
-  "version": 17,
+  "version": 18,
   "weekStart": ""
 }
