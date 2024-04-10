@@ -9,6 +9,7 @@ dwh_replication_failure_reasons:
       app_monitoring_replication_failure_reasons as failures
     LEFT JOIN
       monitoring_urls ON failures.partner_name=monitoring_urls.partner_name
+    WHERE monitoring_urls.url IS NOT NULL
     GROUP BY
       failures.partner_name,
       failure_type,
@@ -35,6 +36,7 @@ users_past_replication_limit:
       public.app_monitoring_users_replication_limit as users
     LEFT JOIN
       monitoring_urls ON users.partner_name=monitoring_urls.partner_name
+    WHERE monitoring_urls.url IS NOT NULL
     GROUP BY
       users.partner_name,
       cht_instance
@@ -59,6 +61,7 @@ users_with_insufficient_disk:
       public.app_monitoring_users_with_insufficient_disk as disk
     LEFT JOIN
       monitoring_urls ON disk.partner_name=monitoring_urls.partner_name
+    WHERE monitoring_urls.url IS NOT NULL
     GROUP BY
       disk.partner_name,
       cht_instance,
@@ -88,6 +91,7 @@ users_with_insufficient_chrome_version:
       public.app_monitoring_users_with_insufficient_chrome AS chrome
     LEFT JOIN
       monitoring_urls ON chrome.partner_name=monitoring_urls.partner_name
+    WHERE monitoring_urls.url IS NOT NULL
   metrics:
     - partner_name:
         usage: "LABEL"
@@ -110,6 +114,7 @@ feedback_docs:
     FROM app_monitoring_feedback_docs AS feedback
     LEFT JOIN
         monitoring_urls ON feedback.partner_name=monitoring_urls.partner_name
+    WHERE monitoring_urls.url IS NOT NULL
     GROUP BY
         feedback.partner_name,
         source,
@@ -135,7 +140,7 @@ manual_feedback_docs:
     FROM app_monitoring_feedback_docs AS feedback
     LEFT JOIN
         monitoring_urls ON feedback.partner_name=monitoring_urls.partner_name
-    WHERE source = 'manual'
+    WHERE source = 'manual' AND monitoring_urls.url IS NOT NULL
     GROUP BY
         feedback.partner_name,
         reported,
@@ -165,7 +170,7 @@ automatic_feedback_docs:
     FROM app_monitoring_feedback_docs AS feedback
     LEFT JOIN
         monitoring_urls ON feedback.partner_name=monitoring_urls.partner_name
-    WHERE source = 'automatic'
+    WHERE source = 'automatic' AND  monitoring_urls.url IS NOT NULL
     GROUP BY
         feedback.partner_name,
         reported,
@@ -197,6 +202,7 @@ replication_by_status:
     FROM app_monitoring_replication_by_status AS status
     LEFT JOIN
         monitoring_urls ON status.partner_name=monitoring_urls.partner_name
+    WHERE monitoring_urls.url IS NOT NULL
   metrics:
     - partner_name:
         usage: "LABEL"
@@ -223,6 +229,7 @@ replication_by_status:
 #     FROM app_monitoring_sms_error_and_users_docs_replication AS sms
 #     LEFT JOIN
 #         monitoring_urls ON sms.partner_name=monitoring_urls.partner_name
+#     WHERE monitoring_urls.url IS NOT NULL
 #   metrics:
 #     - partner_name:
 #         usage: "LABEL"
@@ -243,6 +250,7 @@ initial_replications:
     FROM app_monitoring_initial_replications AS initial
     LEFT JOIN
         monitoring_urls ON initial.partner_name=monitoring_urls.partner_name
+    WHERE monitoring_urls.url IS NOT NULL
   metrics:
     - partner_name:
         usage: "LABEL"
@@ -265,6 +273,7 @@ chw_engagement:
     FROM app_monitoring_chw_engagement AS chw
     LEFT JOIN
         monitoring_urls ON chw.partner_name=monitoring_urls.partner_name
+    WHERE monitoring_urls.url IS NOT NULL
   metrics:
     - partner_name:
         usage: "LABEL"
@@ -293,6 +302,7 @@ gateway_health:
     FROM app_monitoring_gateway_health AS gw
     LEFT JOIN
         monitoring_urls ON gw.partner_name=monitoring_urls.partner_name
+    WHERE monitoring_urls.url IS NOT NULL
   metrics:
     - partner_name:
         usage: "LABEL"
@@ -321,6 +331,7 @@ invalid_docs:
     FROM app_monitoring_invalid_docs AS docs
     LEFT JOIN
         monitoring_urls ON docs.partner_name=monitoring_urls.partner_name
+    WHERE monitoring_urls.url IS NOT NULL
   metrics:
     - partner_name:
         usage: "LABEL"
@@ -342,6 +353,7 @@ invalid_doc_errors:
     FROM app_monitoring_invalid_doc_errors AS docs
     LEFT JOIN
         monitoring_urls ON docs.partner_name=monitoring_urls.partner_name
+    WHERE monitoring_urls.url IS NOT NULL
   metrics:
     - partner_name:
         usage: "LABEL"
@@ -369,6 +381,7 @@ tasks_by_state:
     FROM app_monitoring_tasks_by_state AS tasks
     LEFT JOIN
         monitoring_urls ON tasks.partner_name=monitoring_urls.partner_name
+    WHERE monitoring_urls.url IS NOT NULL
   metrics:
     - partner_name:
         usage: "LABEL"
@@ -402,6 +415,7 @@ tasks_by_user:
     FROM app_monitoring_tasks_by_user AS tasks
     LEFT JOIN
         monitoring_urls ON tasks.partner_name=monitoring_urls.partner_name
+    WHERE monitoring_urls.url IS NOT NULL
   metrics:
     - partner_name:
         usage: "LABEL"
@@ -430,6 +444,7 @@ form_completions:
     FROM app_monitoring_form_completions AS forms
     LEFT JOIN
         monitoring_urls ON forms.partner_name=monitoring_urls.partner_name
+    WHERE monitoring_urls.url IS NOT NULL
   metrics:
     - partner_name:
         usage: "LABEL"
@@ -457,6 +472,7 @@ purge_logs:
     FROM app_monitoring_purge_logs AS purge
     LEFT JOIN
         monitoring_urls ON purge.partner_name=monitoring_urls.partner_name
+    WHERE monitoring_urls.url IS NOT NULL
   metrics:
     - partner_name:
         usage: "LABEL"
