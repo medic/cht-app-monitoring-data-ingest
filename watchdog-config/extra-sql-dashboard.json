@@ -1012,12 +1012,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 5,
+        "h": 3,
+        "w": 4,
         "x": 0,
         "y": 30
       },
-      "id": 2,
+      "id": 4,
       "options": {
         "minVizHeight": 75,
         "minVizWidth": 75,
@@ -1029,8 +1029,7 @@
           "fields": "",
           "values": false
         },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "textMode": "auto"
       },
       "pluginVersion": "10.2.2",
       "targets": [
@@ -1042,10 +1041,9 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "users_past_replication_limit_user_count{cht_instance=\"$cht_instance\"}",
-          "format": "time_series",
+          "expr": "dwh_last_successful_purge_seconds{cht_instance=\"$cht_instance\"}",
           "fullMetaSearch": false,
-          "includeNullMetadata": true,
+          "includeNullMetadata": false,
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
@@ -1053,9 +1051,61 @@
           "useBackend": false
         }
       ],
-      "title": "Users past replication limit",
-      "transformations": [],
-      "type": "gauge"
+      "title": "Days since successful purge",
+      "transformations": [
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "dhw_purge_minutes",
+            "binary": {
+              "left": "{__name__=\"dwh_last_successful_purge_seconds\", cht_instance=\"muso-mali.app.medicmobile.org\", instance=\"extra_sql_exporter:9187\", job=\"extra-sql\", partner_name=\"musoapp\", server=\"172.17.0.1:5432\"}",
+              "operator": "/",
+              "reducer": "sum",
+              "right": "60"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": true
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "dhw_purge_hours",
+            "binary": {
+              "left": "dhw_purge_minutes",
+              "operator": "/",
+              "reducer": "sum",
+              "right": "60"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": true
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "dhw_purge_days",
+            "binary": {
+              "left": "dhw_purge_hours",
+              "operator": "/",
+              "reducer": "sum",
+              "right": "24"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": true
+          }
+        }
+      ],
+      "type": "stat"
     },
     {
       "datasource": {
@@ -1140,7 +1190,7 @@
       "fieldConfig": {
         "defaults": {
           "custom": {
-            "align": "left",
+            "align": "auto",
             "cellOptions": {
               "type": "auto"
             },
@@ -1169,7 +1219,7 @@
         "x": 13,
         "y": 30
       },
-      "id": 3,
+      "id": 5,
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1180,7 +1230,14 @@
           ],
           "show": false
         },
-        "showHeader": true
+        "frameIndex": 2,
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Incomplete"
+          }
+        ]
       },
       "pluginVersion": "10.2.2",
       "targets": [
@@ -1197,10 +1254,58 @@
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": true,
-          "legendFormat": "__auto",
+          "interval": "",
           "range": false,
           "refId": "A",
           "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "dwh_form_completions_last_60_days_complete_percentage{cht_instance=\"$cht_instance\"}",
+          "format": "table",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "interval": "",
+          "key": "Q-bd175420-5a82-4b86-8451-823b56309207-1",
+          "range": false,
+          "refId": "B",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "dwh_form_completions_last_60_days_incomplete_count{cht_instance=\"$cht_instance\"}",
+          "format": "table",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "interval": "",
+          "key": "Q-1d5ba78f-1974-422a-822d-a5cca799481e-2",
+          "range": false,
+          "refId": "C",
+          "useBackend": false
+        }
+      ],
+      "title": "60 Day Form Completion",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "form_name",
+            "mode": "inner"
+          }
         }
       ],
       "title": "Users with Insufficient Disk Space",
@@ -1469,6 +1574,18 @@
                 "value": true
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "failure_type"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 605
+              }
+            ]
           }
         ]
       },
@@ -1489,7 +1606,7 @@
           ],
           "show": false
         },
-        "showHeader": false,
+        "showHeader": true,
         "sortBy": [
           {
             "desc": true,
@@ -1504,15 +1621,19 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "replication_failure_reasons_count{cht_instance=\"$cht_instance\"}",
+          "expr": "dwh_replication_failure_reasons_count{cht_instance=\"$cht_instance\"}",
           "format": "table",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "instant": true,
           "key": "Q-e238fdbd-aed6-4215-a3e8-c611c6586c64-0",
           "legendFormat": "",
           "range": false,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "Replication failure reasons",
@@ -3133,7 +3254,7 @@
       "type": "barchart"
     }
   ],
-  "refresh": "5s",
+  "refresh": "",
   "schemaVersion": 38,
   "tags": [],
   "templating": {
@@ -3179,7 +3300,7 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-30m",
     "to": "now"
   },
   "timepicker": {},

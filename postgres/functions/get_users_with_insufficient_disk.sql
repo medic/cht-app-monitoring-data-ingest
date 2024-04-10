@@ -30,39 +30,15 @@ BEGIN
     ),
         '
 SELECT 
+  DISTINCT ON (user_name)
   current_database() as partner,
   user_name,
-  free_storage_mb
-FROM (
-  SELECT
-    DISTINCT ON (doc #>> ''{metadata,user}'')
-    doc #>> ''{metadata,user}'' as user_name,
-    (doc #>> ''{device,deviceInfo,storage,free}'')::bigint / 1000000 as free_storage_mb
-  FROM couchdb_users_meta
-  WHERE
-    doc ->> ''type'' = ''telemetry''
-  ORDER BY 
-    doc #>> ''{metadata,user}'' ASC, 
-    CONCAT_WS(
-      ''-''::text, doc #>> ''{metadata,year}'',
-      CASE
-          WHEN
-            doc #>> ''{metadata,day}'' IS NULL -- some telemetry documents have version 3.4, but have the modern daily metadata
-            AND (
-              doc #>> ''{metadata,versions,app}'' IS NULL or 
-              string_to_array("substring"(doc #>> ''{metadata,versions,app}'', ''(\d+.\d+.\d+)''), ''.'')::integer[] < ''{3,8,0}''::integer[]
-            )
-          THEN ((doc #>> ''{metadata,month}'')::integer) + 1
-          ELSE (doc #>> ''{metadata,month}'')::integer
-      END,
-      CASE
-          WHEN (doc #>> ''{metadata,day}'') IS NOT NULL
-          THEN doc #>> ''{metadata,day}''
-          ELSE ''1''::text
-      END
-    )::date DESC
-) T
-WHERE free_storage_mb <= 250
+  storage_free::bigint / 1000000 as free_storage_mb
+FROM useview_telemetry_devices 
+WHERE storage_free::bigint / 1000000 <= 250
+ORDER BY
+  user_name ASC,
+  period_start DESC 
 ;
         ',
         FALSE

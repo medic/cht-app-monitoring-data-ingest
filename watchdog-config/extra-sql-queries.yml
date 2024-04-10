@@ -1,4 +1,4 @@
-replication_failure_reasons:
+dwh_replication_failure_reasons:
   query: |
     SELECT
       metric as failure_type,
