@@ -177,7 +177,7 @@ replication_activity:
     FROM app_monitoring_sms_error_and_users_docs_replication AS sms
     LEFT JOIN
         monitoring_urls ON sms.partner_name = monitoring_urls.partner_name
-    WHERE monitoring_urls.url IS NOT NULL AND reported::date >= NOW() - INTERVAL '90 days'
+    WHERE monitoring_urls.url IS NOT NULL AND reported::date >= NOW() - INTERVAL '90 days' AND delta_of_doc > 0
   metrics:
     - partner_name:
         usage: "LABEL"
@@ -250,7 +250,7 @@ gateway_health:
     FROM app_monitoring_gateway_health AS gw
     LEFT JOIN
         monitoring_urls ON gw.partner_name = monitoring_urls.partner_name
-    WHERE monitoring_urls.url IS NOT NULL
+    WHERE monitoring_urls.url IS NOT NULL AND reported::date >= NOW() - INTERVAL '90 days'
   metrics:
     - partner_name:
         usage: "LABEL"
