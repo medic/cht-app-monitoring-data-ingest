@@ -94,7 +94,11 @@ in combination with this technique.
 ## Execution
 
 Both the `node` and `docker` versions need to be run on a schedule, as natively the app will run once and quit.  Consider [using
-`cron`](https://en.wikipedia.org/wiki/Cron).
+`cron`](https://en.wikipedia.org/wiki/Cron) with the following configuration:
+
+```shell
+0 1 * * * /home/rdbms/dwh_impact/refresh_app_monitoring.sh
+```
 
 ### Node
 

@@ -16,3 +16,6 @@ BEGIN
   RETURN 1;
 END;
 $function$;
+
+-- Called in refresh_app_monitoring.sh
+-- See README for cron configuration
