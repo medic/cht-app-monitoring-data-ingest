@@ -1,5 +1,6 @@
 scrape_configs:
   - job_name: 'extra-sql'
     scrape_interval: 12h
+    scrape_timeout: 180s
     static_configs:
       - targets: ['extra_sql_exporter:9187']
