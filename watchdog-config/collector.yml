@@ -27,6 +27,29 @@ metrics:
       ORDER BY
         partner_name, count DESC
 
+  - metric_name: dwh_users_past_replication_limit
+    type: gauge
+    help: 'users past replication limit.'
+    key_labels:
+      - partner_name
+      - cht_instance
+    values: [user_count]
+    query: |
+      SELECT
+        max("users past replication_limit") AS user_count,
+        users.partner_name,
+        replace(monitoring_urls.url, 'https://', '') as cht_instance
+      FROM
+        public.app_monitoring_users_replication_limit as users
+      LEFT JOIN
+        monitoring_urls ON users.partner_name = monitoring_urls.partner_name
+      WHERE monitoring_urls.url IS NOT NULL
+      GROUP BY
+        users.partner_name,
+        cht_instance
+      ORDER BY
+        users.partner_name
+
 #
 #dwh_replication_failure_reasons:
 #  query: |
