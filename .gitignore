@@ -4,3 +4,4 @@ node_modules/
 secrets/
 *.sig
 .env
+sql_servers.yml

@@ -1,0 +1,481 @@
+collector_name: data-ingest
+
+metrics:
+  - metric_name: dwh_replication_failure_reasons
+    type: counter
+    help: 'dwh replication failure reasons.'
+    key_labels:
+      - failure_type
+      - partner_name
+      - cht_instance
+    values: [count]
+    query: |
+      SELECT
+        metric as failure_type,
+        sum(count) AS count,
+        failures.partner_name,
+        replace(monitoring_urls.url, 'https://', '') as cht_instance
+      FROM
+        app_monitoring_replication_failure_reasons as failures
+      LEFT JOIN
+        monitoring_urls ON failures.partner_name = monitoring_urls.partner_name
+      WHERE monitoring_urls.url IS NOT NULL
+      GROUP BY
+        failures.partner_name,
+        failure_type,
+        cht_instance
+      ORDER BY
+        partner_name, count DESC
+
+#
+#dwh_replication_failure_reasons:
+#  query: |
+#    SELECT
+#      metric as failure_type,
+#      sum(count) AS count,
+#      failures.partner_name,
+#      replace(monitoring_urls.url, 'https://', '') as cht_instance
+#    FROM
+#      app_monitoring_replication_failure_reasons as failures
+#    LEFT JOIN
+#      monitoring_urls ON failures.partner_name = monitoring_urls.partner_name
+#    WHERE monitoring_urls.url IS NOT NULL
+#    GROUP BY
+#      failures.partner_name,
+#      failure_type,
+#      cht_instance
+#    ORDER BY
+#      partner_name, count DESC
+#  metrics:
+#    - failure_type:
+#        usage: "LABEL"
+#    - partner_name:
+#        usage: "LABEL"
+#    - cht_instance:
+#        usage: "LABEL"
+#    - count:
+#        usage: "GAUGE"
+#
+#users_past_replication_limit:
+#  query: |
+#    SELECT
+#      max("users past replication_limit") AS user_count,
+#      users.partner_name,
+#      replace(monitoring_urls.url, 'https://', '') as cht_instance
+#    FROM
+#      public.app_monitoring_users_replication_limit as users
+#    LEFT JOIN
+#      monitoring_urls ON users.partner_name = monitoring_urls.partner_name
+#    WHERE monitoring_urls.url IS NOT NULL
+#    GROUP BY
+#      users.partner_name,
+#      cht_instance
+#    ORDER BY
+#      users.partner_name
+#  metrics:
+#    - user_count:
+#        usage: "GAUGE"
+#    - partner_name:
+#        usage: "LABEL"
+#    - cht_instance:
+#        usage: "LABEL"
+#
+#users_with_insufficient_disk:
+#  query: |
+#    SELECT
+#      user_name AS user_name,
+#      free_storage_mb AS free_storage_mb,
+#      disk.partner_name,
+#      replace(monitoring_urls.url, 'https://', '') as cht_instance
+#    FROM
+#      public.app_monitoring_users_with_insufficient_disk as disk
+#    LEFT JOIN
+#      monitoring_urls ON disk.partner_name = monitoring_urls.partner_name
+#    WHERE monitoring_urls.url IS NOT NULL
+#    GROUP BY
+#      disk.partner_name,
+#      cht_instance,
+#      user_name,
+#      free_storage_mb
+#    ORDER BY
+#      free_storage_mb ASC
+#  metrics:
+#    - free_storage_mb:
+#        usage: "GAUGE"
+#    - user_name:
+#        usage: "LABEL"
+#    - partner_name:
+#        usage: "LABEL"
+#    - cht_instance:
+#        usage: "LABEL"
+#
+#users_with_insufficient_chrome_version:
+#  query: |
+#    SELECT
+#      chrome.partner_name,
+#      user_name,
+#      chrome_version,
+#      required_chrome_version,
+#      replace(monitoring_urls.url, 'https://', '') as cht_instance
+#    FROM
+#      public.app_monitoring_users_with_insufficient_chrome AS chrome
+#    LEFT JOIN
+#      monitoring_urls ON chrome.partner_name = monitoring_urls.partner_name
+#    WHERE monitoring_urls.url IS NOT NULL
+#  metrics:
+#    - partner_name:
+#        usage: "LABEL"
+#    - user_name:
+#        usage: "LABEL"
+#    - chrome_version:
+#        usage: "GAUGE"
+#    - required_chrome_version:
+#        usage: "LABEL"
+#    - cht_instance:
+#        usage: "LABEL"
+#
+#feedback_docs:
+#  query: |
+#    SELECT
+#        feedback.partner_name,
+#        reported::varchar(255),
+#        source,
+#        detail,
+#        count(*) AS source_count,
+#        replace(monitoring_urls.url, 'https://', '') as cht_instance
+#    FROM app_monitoring_feedback_docs AS feedback
+#    LEFT JOIN
+#        monitoring_urls ON feedback.partner_name = monitoring_urls.partner_name
+#    WHERE monitoring_urls.url IS NOT NULL AND reported >= NOW() - INTERVAL '90 days'
+#    GROUP BY
+#        feedback.partner_name,
+#        feedback.reported,
+#        source,
+#        detail,
+#        cht_instance
+#  metrics:
+#    - partner_name:
+#        usage: "LABEL"
+#    - reported:
+#        usage: "LABEL"
+#    - source:
+#        usage: "LABEL"
+#    - detail:
+#        usage: "LABEL"
+#    - source_count:
+#        usage: "GAUGE"
+#    - cht_instance:
+#        usage: "LABEL"
+#
+#replication_by_status:
+#  query: |
+#    SELECT
+#        status.partner_name,
+#        period_start::varchar(255),
+#        replication_success_count,
+#        replication_failure_count,
+#        replication_denied_count,
+#        replication_error_count,
+#        replace(monitoring_urls.url, 'https://', '') as cht_instance
+#    FROM app_monitoring_replication_by_status AS status
+#    LEFT JOIN
+#        monitoring_urls ON status.partner_name = monitoring_urls.partner_name
+#    WHERE monitoring_urls.url IS NOT NULL AND period_start >= NOW() - INTERVAL '90 days'
+#  metrics:
+#    - partner_name:
+#        usage: "LABEL"
+#    - period_start:
+#        usage: "LABEL"
+#    - replication_success_count:
+#        usage: "GAUGE"
+#    - replication_failure_count:
+#        usage: "GAUGE"
+#    - replication_denied_count:
+#        usage: "GAUGE"
+#    - replication_error_count:
+#        usage: "GAUGE"
+#    - cht_instance:
+#        usage: "LABEL"
+#
+#replication_activity:
+#  query: |
+#    SELECT
+#        sms.partner_name,
+#        reported::varchar(255),
+#        delta_of_doc AS delta_docs,
+#        replace(monitoring_urls.url, 'https://', '') as cht_instance
+#    FROM app_monitoring_sms_error_and_users_docs_replication AS sms
+#    LEFT JOIN
+#        monitoring_urls ON sms.partner_name = monitoring_urls.partner_name
+#    WHERE monitoring_urls.url IS NOT NULL AND reported::date >= NOW() - INTERVAL '90 days' AND delta_of_doc > 0
+#  metrics:
+#    - partner_name:
+#        usage: "LABEL"
+#    - reported:
+#        usage: "LABEL"
+#    - delta_docs:
+#        usage: "GAUGE"
+#    - cht_instance:
+#        usage: "LABEL"
+#
+#initial_replications:
+#  query: |
+#    SELECT
+#        initial.partner_name,
+#        date::varchar(255),
+#        count_initial_replications,
+#        replace(monitoring_urls.url, 'https://', '') as cht_instance
+#    FROM app_monitoring_initial_replications AS initial
+#    LEFT JOIN
+#        monitoring_urls ON initial.partner_name = monitoring_urls.partner_name
+#    WHERE monitoring_urls.url IS NOT NULL AND count_initial_replications > 0
+#  metrics:
+#    - partner_name:
+#        usage: "LABEL"
+#    - date:
+#        usage: "LABEL"
+#    - count_initial_replications:
+#        usage: "GAUGE"
+#    - cht_instance:
+#        usage: "LABEL"
+#
+#chw_engagement:
+#  query: |
+#    SELECT
+#        chw.partner_name,
+#        last_sync::varchar(255),
+#        days_since_last_sync,
+#        chw_username,
+#        chw_id,
+#        replace(monitoring_urls.url, 'https://', '') as cht_instance
+#    FROM app_monitoring_chw_engagement AS chw
+#    LEFT JOIN
+#        monitoring_urls ON chw.partner_name = monitoring_urls.partner_name
+#    WHERE monitoring_urls.url IS NOT NULL
+#  metrics:
+#    - partner_name:
+#        usage: "LABEL"
+#    - last_sync:
+#        usage: "LABEL"
+#    - days_since_last_sync:
+#        usage: "GAUGE"
+#    - chw_username:
+#        usage: "LABEL"
+#    - chw_id:
+#        usage: "LABEL"
+#    - cht_instance:
+#        usage: "LABEL"
+#
+#gateway_health:
+#  query: |
+#    SELECT
+#        gw.partner_name,
+#        reported::varchar(255),
+#        due,
+#        delivered,
+#        scheduled,
+#        gateway_state,
+#        last_delivered,
+#        replace(monitoring_urls.url, 'https://', '') as cht_instance
+#    FROM app_monitoring_gateway_health AS gw
+#    LEFT JOIN
+#        monitoring_urls ON gw.partner_name = monitoring_urls.partner_name
+#    WHERE monitoring_urls.url IS NOT NULL AND reported::date >= NOW() - INTERVAL '90 days'
+#  metrics:
+#    - partner_name:
+#        usage: "LABEL"
+#    - reported:
+#        usage: "LABEL"
+#    - due:
+#        usage: "GAUGE"
+#    - delivered:
+#        usage: "LABEL"
+#    - scheduled:
+#        usage: "LABEL"
+#    - gateway_state:
+#        usage: "LABEL"
+#    - last_delivered:
+#        usage: "LABEL"
+#    - cht_instance:
+#        usage: "LABEL"
+#
+#invalid_docs:
+#  query: |
+#    SELECT
+#        docs.partner_name,
+#        day::varchar(255) AS reported,
+#        invalid_doc_count,
+#        replace(monitoring_urls.url, 'https://', '') as cht_instance
+#    FROM app_monitoring_invalid_docs AS docs
+#    LEFT JOIN
+#        monitoring_urls ON docs.partner_name = monitoring_urls.partner_name
+#    WHERE monitoring_urls.url IS NOT NULL
+#  metrics:
+#    - partner_name:
+#        usage: "LABEL"
+#    - reported:
+#        usage: "LABEL"
+#    - invalid_doc_count:
+#        usage: "GAUGE"
+#    - cht_instance:
+#        usage: "LABEL"
+#
+#invalid_doc_errors:
+#  query: |
+#    SELECT
+#        docs.partner_name,
+#        day::varchar(255) AS reported,
+#        code,
+#        count,
+#        replace(monitoring_urls.url, 'https://', '') as cht_instance
+#    FROM app_monitoring_invalid_doc_errors AS docs
+#    LEFT JOIN
+#        monitoring_urls ON docs.partner_name = monitoring_urls.partner_name
+#    WHERE monitoring_urls.url IS NOT NULL AND day >= NOW() - INTERVAL '90 days'
+#  metrics:
+#    - partner_name:
+#        usage: "LABEL"
+#    - reported:
+#        usage: "LABEL"
+#    - code:
+#        usage: "LABEL"
+#    - count:
+#        usage: "GAUGE"
+#    - cht_instance:
+#        usage: "LABEL"
+#
+#tasks_by_state:
+#  query: |
+#    SELECT
+#        tasks.partner_name,
+#        day::varchar(255) AS reported,
+#        task,
+#        draft,
+#        ready,
+#        cancelled,
+#        completed,
+#        failed,
+#        replace(monitoring_urls.url, 'https://', '') as cht_instance
+#    FROM app_monitoring_tasks_by_state AS tasks
+#    LEFT JOIN
+#        monitoring_urls ON tasks.partner_name = monitoring_urls.partner_name
+#    WHERE monitoring_urls.url IS NOT NULL AND day >= NOW() - INTERVAL '90 days'
+#  metrics:
+#    - partner_name:
+#        usage: "LABEL"
+#    - reported:
+#        usage: "LABEL"
+#    - task:
+#        usage: "LABEL"
+#    - draft:
+#        usage: "GAUGE"
+#    - ready:
+#        usage: "GAUGE"
+#    - cancelled:
+#        usage: "GAUGE"
+#    - completed:
+#        usage: "GAUGE"
+#    - failed:
+#        usage: "GAUGE"
+#    - cht_instance:
+#        usage: "LABEL"
+#
+#tasks_by_user:
+#  query: |
+#    SELECT
+#        tasks.partner_name,
+#        chw,
+#        task,
+#        docs,
+#        cancelled,
+#        completed,
+#        replace(monitoring_urls.url, 'https://', '') as cht_instance
+#    FROM app_monitoring_tasks_by_user AS tasks
+#    LEFT JOIN
+#        monitoring_urls ON tasks.partner_name = monitoring_urls.partner_name
+#    WHERE monitoring_urls.url IS NOT NULL AND day >= NOW() - INTERVAL '90 days'
+#  metrics:
+#    - partner_name:
+#        usage: "LABEL"
+#    - chw:
+#        usage: "LABEL"
+#    - task:
+#        usage: "LABEL"
+#    - docs:
+#        usage: "GAUGE"
+#    - cancelled:
+#        usage: "GAUGE"
+#    - completed:
+#        usage: "GAUGE"
+#    - cht_instance:
+#        usage: "LABEL"
+#
+#form_completions:
+#  query: |
+#    SELECT
+#        forms.partner_name,
+#        username,
+#        form_name,
+#        load_count,
+#        complete_count,
+#        replace(monitoring_urls.url, 'https://', '') as cht_instance
+#    FROM app_monitoring_form_completions AS forms
+#    LEFT JOIN
+#        monitoring_urls ON forms.partner_name = monitoring_urls.partner_name
+#    WHERE monitoring_urls.url IS NOT NULL
+#  metrics:
+#    - partner_name:
+#        usage: "LABEL"
+#    - username:
+#        usage: "LABEL"
+#    - form_name:
+#        usage: "LABEL"
+#    - load_count:
+#        usage: "GAUGE"
+#    - complete_count:
+#        usage: "GAUGE"
+#    - cht_instance:
+#        usage: "LABEL"
+#
+#purge_logs:
+#  query: |
+#    WITH purge_CTE AS (
+#        SELECT
+#            purge.partner_name,
+#            purge.completion_date,
+#            (EXTRACT(EPOCH FROM AGE(purge.completion_date))/86400)::INT AS days,
+#            duration_minutes,
+#            skipped_contacts,
+#            error,
+#            row_number() OVER (PARTITION BY purge.partner_name ORDER BY purge.completion_date DESC),
+#            replace(monitoring_urls.url, 'https://', '') as cht_instance
+#        FROM app_monitoring_purge_logs AS purge
+#        LEFT JOIN
+#            monitoring_urls ON purge.partner_name = monitoring_urls.partner_name
+#        WHERE monitoring_urls.url IS NOT NULL
+#    )
+#    SELECT
+#        partner_name,
+#        completion_date,
+#        days,
+#        duration_minutes,
+#        skipped_contacts,
+#        error,
+#        cht_instance
+#    FROM purge_CTE
+#    WHERE row_number < 6
+#  metrics:
+#    - partner_name:
+#        usage: "LABEL"
+#    - completion_date:
+#        usage: "LABEL"
+#    - days:
+#        usage: "LABEL"
+#    - duration_minutes:
+#        usage: "GAUGE"
+#    - skipped_contacts:
+#        usage: "LABEL"
+#    - error:
+#        usage: "LABEL"
+#    - cht_instance:
+#        usage: "LABEL"
