@@ -25,5 +25,5 @@ jobs:
     static_configs:
       - targets:
           # change USERNAME and PASSWORD as needed - you may need to change 172.17.0.1 if you bind to a diff interface
-          "dwh_impact": 'postgres://USERNAME:PASSWORD@172.17.0.1:dwh_impact/cht?sslmode=disable' # //NOSONAR - password is safe to commit
+          "dwh_impact": 'postgres://USERNAME:PASSWORD@172.17.0.1:5432/dwh_impact?sslmode=disable' # //NOSONAR - password is safe to commit
 
