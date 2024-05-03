@@ -1,0 +1,78 @@
+collector_name: data-ingest
+
+metrics:
+  - metric_name: dwh_replication_failure_reasons
+    type: counter
+    help: 'dwh replication failure reasons.'
+    key_labels:
+      - failure_type
+      - partner_name
+      - cht_instance
+    values: [count]
+    query: |
+      SELECT
+        metric as failure_type,
+        sum(count) AS count,
+        failures.partner_name,
+        replace(monitoring_urls.url, 'https://', '') as cht_instance
+      FROM
+        app_monitoring_replication_failure_reasons as failures
+      LEFT JOIN
+        monitoring_urls ON failures.partner_name = monitoring_urls.partner_name
+      WHERE monitoring_urls.url IS NOT NULL
+      GROUP BY
+        failures.partner_name,
+        failure_type,
+        cht_instance
+      ORDER BY
+        partner_name, count DESC
+
+  - metric_name: dwh_users_past_replication_limit
+    type: gauge
+    help: 'users past replication limit.'
+    key_labels:
+      - partner_name
+      - cht_instance
+    values: [user_count]
+    query: |
+      SELECT
+        max("users past replication_limit") AS user_count,
+        users.partner_name,
+        replace(monitoring_urls.url, 'https://', '') as cht_instance
+      FROM
+        public.app_monitoring_users_replication_limit as users
+      LEFT JOIN
+        monitoring_urls ON users.partner_name = monitoring_urls.partner_name
+      WHERE monitoring_urls.url IS NOT NULL
+      GROUP BY
+        users.partner_name,
+        cht_instance
+      ORDER BY
+        users.partner_name
+
+  - metric_name: dwh_replication_by_status
+    type: gauge
+    help: 'replication by status.'
+    key_labels:
+      - partner_name
+      - cht_instance
+      - period_start
+    value_label: type
+    values:
+      - replication_success_count
+      - replication_failure_count
+      - replication_denied_count
+      - replication_error_count
+    query: |
+      SELECT
+          status.partner_name,
+          period_start::varchar(255),
+          replication_success_count,
+          replication_failure_count,
+          replication_denied_count,
+          replication_error_count,
+          replace(monitoring_urls.url, 'https://', '') as cht_instance
+      FROM app_monitoring_replication_by_status AS status
+      LEFT JOIN
+          monitoring_urls ON status.partner_name = monitoring_urls.partner_name
+      WHERE monitoring_urls.url IS NOT NULL AND period_start >= NOW() - INTERVAL '90 days'

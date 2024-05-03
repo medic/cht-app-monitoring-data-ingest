@@ -1,0 +1,20 @@
+services:
+
+  prometheus:
+    volumes:
+      - ./data-ingest/scrape.yml:/etc/prometheus/scrape_configs/data-ingest.yml:ro
+
+  grafana:
+    volumes:
+      - ./data-ingest/dashboard.json:/etc/grafana/provisioning/dashboards/CHT/dashboard.json:ro
+
+  data-ingest:
+    restart: unless-stopped
+    image: burningalchemist/sql_exporter:latest
+    command: --config.file=/etc/sql_exporter/sql_servers.yml
+    volumes:
+      - "./data-ingest/:/etc/sql_exporter/"
+    ports:
+      - "${DATA_INGEST_IP:-127.0.0.1}:${DATA_INGEST_PORT:-9499}:9399"
+    networks:
+      - cht-watchdog-net

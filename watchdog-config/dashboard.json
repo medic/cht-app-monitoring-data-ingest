@@ -227,7 +227,7 @@
         },
         "xField": "completion_date_ms",
         "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 200
+        "xTickLabelSpacing": 0
       },
       "targets": [
         {
@@ -312,7 +312,7 @@
             "cellOptions": {
               "type": "auto"
             },
-            "filterable": true,
+            "filterable": false,
             "inspect": false
           },
           "mappings": [],
@@ -433,7 +433,7 @@
         {
           "id": "calculateField",
           "options": {
-            "alias": "Completion proportion",
+            "alias": "% completion",
             "binary": {
               "left": "form_completions_complete_count (sum)",
               "operator": "/",
@@ -453,42 +453,12 @@
         {
           "id": "organize",
           "options": {
-            "excludeByName": {
-              "% completion": false
-            },
+            "excludeByName": {},
             "indexByName": {},
             "renameByName": {
-              "% completion": "Completion proportion",
               "form_completions_complete_count (sum)": "Complete",
               "form_completions_load_count (sum)": "Load",
               "form_name": "Form ID"
-            }
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "% completion",
-            "binary": {
-              "left": "Completion proportion",
-              "operator": "*",
-              "right": "100"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            }
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Completion proportion": true
-            },
-            "indexByName": {},
-            "renameByName": {
-              "% completion 2": ""
             }
           }
         }
@@ -510,7 +480,6 @@
             "cellOptions": {
               "type": "auto"
             },
-            "filterable": true,
             "inspect": false
           },
           "mappings": [],
@@ -638,7 +607,7 @@
         {
           "id": "calculateField",
           "options": {
-            "alias": "Completion proportion",
+            "alias": "% completion",
             "binary": {
               "left": "form_completions_complete_count (sum)",
               "operator": "/",
@@ -651,30 +620,13 @@
           }
         },
         {
-          "id": "calculateField",
-          "options": {
-            "alias": "% completion",
-            "binary": {
-              "left": "Completion proportion",
-              "operator": "*",
-              "right": "100"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            }
-          }
-        },
-        {
           "id": "organize",
           "options": {
-            "excludeByName": {
-              "Completion proportion": true
-            },
+            "excludeByName": {},
             "indexByName": {},
             "renameByName": {
-              "form_completions_complete_count (sum)": "Forms completed",
-              "form_completions_load_count (sum)": "Loaded",
+              "form_completions_complete_count (sum)": "Complete",
+              "form_completions_load_count (sum)": "Load",
               "form_name": "Form ID",
               "username": "Username"
             }
@@ -697,18 +649,29 @@
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "",
+            "axisLabel": "Number of documents",
             "axisPlacement": "auto",
-            "fillOpacity": 80,
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
             "lineWidth": 1,
+            "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -737,7 +700,7 @@
               "options": {
                 "mode": "exclude",
                 "names": [
-                  "Automatic"
+                  "{__name__=\"feedback_docs_source_count\", cht_instance=\"pih-malawi.app.medicmobile.org\", instance=\"extra_sql_exporter:9187\", job=\"extra-sql\", partner_name=\"pih_malawi\", server=\"172.17.0.1:5432\", source=\"manual\"}"
                 ],
                 "prefix": "All except:",
                 "readOnly": true
@@ -757,33 +720,23 @@
         ]
       },
       "gridPos": {
-        "h": 11,
+        "h": 6,
         "w": 24,
         "x": 0,
         "y": 16
       },
       "id": 4,
       "options": {
-        "barRadius": 0,
-        "barWidth": 0.97,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "right",
+          "placement": "bottom",
           "showLegend": true
         },
-        "orientation": "auto",
-        "showValue": "never",
-        "stacking": "normal",
         "tooltip": {
-          "mode": "multi",
+          "mode": "single",
           "sort": "none"
-        },
-        "xField": "reported",
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 200
+        }
       },
       "targets": [
         {
@@ -794,70 +747,36 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "feedback_docs_source_count{cht_instance=\"$cht_instance\"}",
+          "expr": "feedback_docs_source_count{cht_instance=\"$cht_instance\", source=\"manual\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "instant": false,
+          "instant": true,
           "interval": "",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A",
           "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "feedback_docs_source_count{cht_instance=\"$cht_instance\", source=\"automatic\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
         }
       ],
       "title": "Feedback docs by type",
-      "transformations": [
-        {
-          "id": "labelsToFields",
-          "options": {
-            "keepLabels": [
-              "reported",
-              "source"
-            ],
-            "mode": "columns",
-            "valueLabel": "source"
-          }
-        },
-        {
-          "id": "merge",
-          "options": {}
-        },
-        {
-          "id": "groupBy",
-          "options": {
-            "fields": {
-              "automatic": {
-                "aggregations": [
-                  "sum"
-                ],
-                "operation": "aggregate"
-              },
-              "manual": {
-                "aggregations": [
-                  "sum"
-                ],
-                "operation": "aggregate"
-              },
-              "reported": {
-                "aggregations": [],
-                "operation": "groupby"
-              }
-            }
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "indexByName": {},
-            "renameByName": {
-              "automatic (sum)": "Automatic",
-              "manual (sum)": "Manual"
-            }
-          }
-        }
-      ],
-      "type": "barchart"
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -894,17 +813,16 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 11,
+        "h": 8,
         "w": 12,
         "x": 0,
-        "y": 27
+        "y": 22
       },
       "id": 5,
       "options": {
         "cellHeight": "sm",
         "footer": {
           "countRows": false,
-          "enablePagination": true,
           "fields": "",
           "reducer": [
             "sum"
@@ -922,9 +840,9 @@
             "uid": "PBFA97CFB590B2093"
           },
           "disableTextWrap": false,
-          "editorMode": "builder",
+          "editorMode": "code",
           "exemplar": false,
-          "expr": "feedback_docs_source_count{cht_instance=\"$cht_instance\", source=\"manual\"}",
+          "expr": "manual_feedback_docs_detail_count{cht_instance=\"$cht_instance\"}",
           "format": "table",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -948,45 +866,6 @@
               ]
             }
           }
-        },
-        {
-          "id": "limit",
-          "options": {
-            "limitField": 50
-          }
-        },
-        {
-          "id": "groupBy",
-          "options": {
-            "fields": {
-              "Value": {
-                "aggregations": [
-                  "sum"
-                ],
-                "operation": "aggregate"
-              },
-              "detail": {
-                "aggregations": [],
-                "operation": "groupby"
-              },
-              "reported": {
-                "aggregations": [],
-                "operation": "groupby"
-              }
-            }
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "indexByName": {},
-            "renameByName": {
-              "Value (sum)": "Count",
-              "detail": "Detail",
-              "reported": "Reported"
-            }
-          }
         }
       ],
       "type": "table"
@@ -1006,7 +885,6 @@
             "cellOptions": {
               "type": "auto"
             },
-            "filterable": false,
             "inspect": false
           },
           "mappings": [],
@@ -1024,20 +902,36 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "detail"
+            },
+            "properties": [
+              {
+                "id": "custom.align",
+                "value": "center"
+              },
+              {
+                "id": "custom.minWidth",
+                "value": 500
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 11,
+        "h": 8,
         "w": 12,
         "x": 12,
-        "y": 27
+        "y": 22
       },
       "id": 6,
       "options": {
         "cellHeight": "sm",
         "footer": {
           "countRows": false,
-          "enablePagination": true,
           "fields": "",
           "reducer": [
             "sum"
@@ -1061,7 +955,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "feedback_docs_source_count{cht_instance=\"$cht_instance\", source=\"automatic\"}",
+          "expr": "automatic_feedback_docs_detail_count{cht_instance=\"$cht_instance\"}",
           "format": "table",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -1085,48 +979,133 @@
               ]
             }
           }
-        },
-        {
-          "id": "limit",
-          "options": {
-            "limitField": 50
-          }
-        },
-        {
-          "id": "groupBy",
-          "options": {
-            "fields": {
-              "Value": {
-                "aggregations": [
-                  "sum"
-                ],
-                "operation": "aggregate"
-              },
-              "detail": {
-                "aggregations": [],
-                "operation": "groupby"
-              },
-              "reported": {
-                "aggregations": [],
-                "operation": "groupby"
-              }
-            }
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "indexByName": {},
-            "renameByName": {
-              "Value (sum)": "Occurrences",
-              "detail": "Detail",
-              "reported": "Reported"
-            }
-          }
         }
       ],
       "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 30
+      },
+      "id": 4,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.2.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "dwh_last_successful_purge_seconds{cht_instance=\"$cht_instance\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Days since successful purge",
+      "transformations": [
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "dhw_purge_minutes",
+            "binary": {
+              "left": "{__name__=\"dwh_last_successful_purge_seconds\", cht_instance=\"muso-mali.app.medicmobile.org\", instance=\"extra_sql_exporter:9187\", job=\"extra-sql\", partner_name=\"musoapp\", server=\"172.17.0.1:5432\"}",
+              "operator": "/",
+              "reducer": "sum",
+              "right": "60"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": true
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "dhw_purge_hours",
+            "binary": {
+              "left": "dhw_purge_minutes",
+              "operator": "/",
+              "reducer": "sum",
+              "right": "60"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": true
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "dhw_purge_days",
+            "binary": {
+              "left": "dhw_purge_hours",
+              "operator": "/",
+              "reducer": "sum",
+              "right": "24"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": true
+          }
+        }
+      ],
+      "type": "stat"
     },
     {
       "datasource": {
@@ -1164,9 +1143,9 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 12,
-        "x": 1,
-        "y": 38
+        "w": 8,
+        "x": 5,
+        "y": 30
       },
       "id": 13,
       "options": {
@@ -1238,9 +1217,9 @@
         "h": 7,
         "w": 11,
         "x": 13,
-        "y": 38
+        "y": 30
       },
-      "id": 29,
+      "id": 5,
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1319,6 +1298,16 @@
           "useBackend": false
         }
       ],
+      "title": "60 Day Form Completion",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "form_name",
+            "mode": "inner"
+          }
+        }
+      ],
       "title": "Users with Insufficient Disk Space",
       "transformations": [
         {
@@ -1394,7 +1383,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 45
+        "y": 37
       },
       "id": 8,
       "options": {
@@ -1604,7 +1593,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 45
+        "y": 37
       },
       "id": 1,
       "options": {
@@ -1702,7 +1691,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 54
+        "y": 46
       },
       "id": 18,
       "options": {
@@ -1815,7 +1804,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 54
+        "y": 46
       },
       "id": 9,
       "options": {
@@ -1928,7 +1917,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 61
+        "y": 53
       },
       "id": 7,
       "options": {
@@ -2043,7 +2032,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 61
+        "y": 53
       },
       "id": 11,
       "options": {
@@ -2055,17 +2044,17 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": false
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
         "stacking": "none",
         "tooltip": {
-          "mode": "multi",
+          "mode": "single",
           "sort": "none"
         },
         "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 200
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "10.2.2",
       "targets": [
@@ -2076,7 +2065,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "last_over_time(replication_activity_delta_docs{cht_instance=\"$cht_instance\"}[$__interval])",
+          "expr": "replication_activity_delta_docs{cht_instance=\"$cht_instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -2087,20 +2076,6 @@
         }
       ],
       "title": "# docs replicated per day",
-      "transformations": [
-        {
-          "id": "labelsToFields",
-          "options": {
-            "keepLabels": [
-              "reported"
-            ]
-          }
-        },
-        {
-          "id": "merge",
-          "options": {}
-        }
-      ],
       "type": "barchart"
     },
     {
@@ -2180,7 +2155,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 69
+        "y": 61
       },
       "id": 10,
       "options": {
@@ -2236,7 +2211,7 @@
             "mode": "thresholds"
           },
           "custom": {
-            "align": "center",
+            "align": "auto",
             "cellOptions": {
               "type": "auto"
             },
@@ -2263,7 +2238,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 69
+        "y": 61
       },
       "id": 15,
       "options": {
@@ -2287,7 +2262,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "last_over_time(gateway_health_due[$__interval])",
+          "expr": "gateway_health_due{cht_instance=\"$cht_instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -2298,50 +2273,6 @@
         }
       ],
       "title": "Gateway state",
-      "transformations": [
-        {
-          "id": "labelsToFields",
-          "options": {
-            "keepLabels": [
-              "delivered",
-              "gateway_state",
-              "reported",
-              "scheduled"
-            ]
-          }
-        },
-        {
-          "id": "merge",
-          "options": {}
-        },
-        {
-          "id": "limit",
-          "options": {}
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true
-            },
-            "indexByName": {
-              "Time": 2,
-              "delivered": 4,
-              "gateway_health_due": 3,
-              "gateway_state": 1,
-              "reported": 0,
-              "scheduled": 5
-            },
-            "renameByName": {
-              "delivered": "Messages delivered",
-              "gateway_health_due": "Messages due",
-              "gateway_state": "State",
-              "reported": "Reported",
-              "scheduled": "Messages scheduled"
-            }
-          }
-        }
-      ],
       "type": "table"
     },
     {
@@ -2396,7 +2327,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 77
+        "y": 69
       },
       "id": 12,
       "options": {
@@ -2519,7 +2450,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 85
+        "y": 77
       },
       "id": 14,
       "options": {
@@ -2607,7 +2538,7 @@
         "h": 9,
         "w": 11,
         "x": 0,
-        "y": 93
+        "y": 85
       },
       "id": 16,
       "options": {
@@ -2706,7 +2637,7 @@
         "h": 9,
         "w": 13,
         "x": 11,
-        "y": 93
+        "y": 85
       },
       "id": 17,
       "options": {
@@ -2806,7 +2737,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 102
+        "y": 94
       },
       "id": 20,
       "options": {
@@ -2921,7 +2852,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 102
+        "y": 94
       },
       "id": 19,
       "options": {
@@ -3035,7 +2966,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 110
+        "y": 102
       },
       "id": 21,
       "options": {
@@ -3148,7 +3079,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 110
+        "y": 102
       },
       "id": 22,
       "options": {
@@ -3261,7 +3192,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 118
+        "y": 110
       },
       "id": 23,
       "options": {
@@ -3331,8 +3262,8 @@
       {
         "current": {
           "selected": true,
-          "text": "muso-mali.app.medicmobile.org",
-          "value": "muso-mali.app.medicmobile.org"
+          "text": "pih-malawi.app.medicmobile.org",
+          "value": "pih-malawi.app.medicmobile.org"
         },
         "datasource": {
           "type": "prometheus",
@@ -3369,13 +3300,13 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-30m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "CHT Admin Extra SQL",
   "uid": "a71db640-cc40-452c-aa92-222a9b49d43b",
-  "version": 27,
+  "version": 20,
   "weekStart": ""
 }
