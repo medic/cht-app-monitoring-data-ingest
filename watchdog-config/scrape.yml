@@ -1,6 +1,6 @@
 scrape_configs:
   - job_name: data-ingest
-    scrape_interval: 12h # be sure this stays at 12h !
-    scrape_timeout: 180s
+    scrape_interval: 12h # be sure this stays at 12h in git! Set to lower value for dev
+    scrape_timeout: 180s # be sure this stays at 180s in git! Set to lower value for dev
     static_configs:
       - targets: ['data-ingest:9399']
